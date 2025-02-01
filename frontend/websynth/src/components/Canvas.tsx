@@ -144,7 +144,7 @@ const Canvas = () => {
 
   return (
     <div
-      className="w-full h-screen bg-white"
+      className="w-full h-screen bg-opacity-0"
       onClick={handleClick} // Use click event to toggle selection
       onMouseMove={handleMouseMove}
     >

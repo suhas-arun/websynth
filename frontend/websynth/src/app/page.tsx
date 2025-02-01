@@ -2,6 +2,7 @@
 import { useRef } from "react";
 import InputPrompt from "@/components/InputPrompt";
 import Canvas from "@/components/Canvas";
+import WebsitePreview from "@/components/WebsitePreview";
 
 export default function Home() {
   const pageRef = useRef<HTMLDivElement>(null);
@@ -12,6 +13,7 @@ export default function Home() {
     >
       <div className="w-full h-full">
         <Canvas />
+        <WebsitePreview />
       </div>
         <InputPrompt homepageRef={pageRef} />
     </div>

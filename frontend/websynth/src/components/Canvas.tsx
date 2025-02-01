@@ -16,7 +16,7 @@ const Canvas = () => {
 
   // Stores components that have already been selected
   const [components, setComponents] = useState<
-    { x: number; y: number; width: number; height: number, name: string, description: string }[]
+    { x: number, y: number, width: number, height: number, name: string, description: string }[]
   >([]);
 
   // Currently selected component
@@ -93,6 +93,15 @@ const Canvas = () => {
     }
   };
 
+  const handleComponentDelete = (index: number) => {
+    const updatedComponents = [...components];
+    updatedComponents.splice(index, 1);
+    setComponents(updatedComponents);
+    setSelectedComponent(null);
+    setSelectedArea(null);
+    setSidesheetOpen(false);
+  }
+
   const getRectangleStyle = (
     rectangle: { x: number, y: number, width: number, height: number }
   ): React.CSSProperties => {
@@ -165,6 +174,7 @@ const Canvas = () => {
           setSidesheetOpen(open);
         }}
         onComponentSubmit={handleComponentSubmit}
+        onComponentDelete={handleComponentDelete}
         selectedComponent={selectedComponent}
       />
 

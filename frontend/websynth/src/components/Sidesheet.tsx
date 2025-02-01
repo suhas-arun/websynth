@@ -26,8 +26,9 @@ import { Input } from "@/components/ui/input"
 interface SidesheetProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onComponentSubmit?: (name: string, description: string) => void;
-  selectedComponent?: { name: string, description: string } | null;
+  onComponentSubmit: (name: string, description: string) => void;
+  onComponentDelete: (index: number) => void;
+  selectedComponent?: { index: number, name: string, description: string } | null;
 }
 
 const formSchema = z.object({
@@ -35,7 +36,8 @@ const formSchema = z.object({
   description: z.string().min(1, "Please enter a description."),
 });
 
-const Sidesheet: React.FC<SidesheetProps> = ({ open, onOpenChange, onComponentSubmit, selectedComponent }) => {
+const Sidesheet: React.FC<SidesheetProps> = (
+  { open, onOpenChange, onComponentSubmit, onComponentDelete, selectedComponent }) => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -45,7 +47,7 @@ const Sidesheet: React.FC<SidesheetProps> = ({ open, onOpenChange, onComponentSu
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    onComponentSubmit?.(values.name, values.description);
+    onComponentSubmit(values.name, values.description);
     form.reset();
   }
 
@@ -118,6 +120,9 @@ const Sidesheet: React.FC<SidesheetProps> = ({ open, onOpenChange, onComponentSu
                 type="reset"
                 variant="destructive"
                 onClick={() => {
+                  if (selectedComponent) {
+                    onComponentDelete(selectedComponent.index);
+                  }
                   form.reset();
                   onOpenChange(false);
                 }}

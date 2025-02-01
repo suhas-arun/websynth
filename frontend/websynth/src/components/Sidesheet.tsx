@@ -25,6 +25,7 @@ import { Input } from "@/components/ui/input"
 interface SidesheetProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onComponentSubmit?: (name: string, description: string) => void;
   componentName?: string;
   componentDescription?: string;
 }
@@ -34,7 +35,7 @@ const formSchema = z.object({
   description: z.string(),
 });
 
-const Sidesheet: React.FC<SidesheetProps> = ({ open, onOpenChange }) => {
+const Sidesheet: React.FC<SidesheetProps> = ({ open, onOpenChange, onComponentSubmit }) => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -44,8 +45,8 @@ const Sidesheet: React.FC<SidesheetProps> = ({ open, onOpenChange }) => {
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
-    onOpenChange(false);
+    onComponentSubmit?.(values.name, values.description);
+    form.reset();
   }
 
   return (
@@ -68,7 +69,7 @@ const Sidesheet: React.FC<SidesheetProps> = ({ open, onOpenChange }) => {
                 <FormItem>
                   <FormLabel>Component Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="button1" {...field} />
+                    <Input placeholder="MyButton" {...field} />
                   </FormControl>
                   <FormDescription>
                     Give your component a simple name that you can refer to in the overall structure.
@@ -97,8 +98,12 @@ const Sidesheet: React.FC<SidesheetProps> = ({ open, onOpenChange }) => {
             <div className="flex flex-col">
               <Button type="submit">Create Component</Button>
               <Button
+                type="reset"
                 variant="destructive"
-                onClick={() => onOpenChange(false)}
+                onClick={() => {
+                  form.reset();
+                  onOpenChange(false);
+                }}
                 className="mt-2"
               >
                 Delete Component

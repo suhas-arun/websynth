@@ -1,10 +1,10 @@
 from langchain_core.tools import tool
 import os
-import subprocess
-base_dir = '../virtual-frontend'
 from utils import ClaudeClient
+import subprocess
 
 main_dir = '../virtual-frontend/src/app/'
+base_dir = '../virtual-frontend'
 
 # @tool
 # def read_file(file_path: str) -> str:
@@ -78,3 +78,26 @@ def make_change_to_file(file_path: str, changes: str) -> str:
     programmer.rewrite_code(tsx_code, str(os.path.join(main_dir, file_path)))
     
     return f"The changes to the code were successfully made to the file: {file_path}"
+
+@tool
+def check_install(component:str) -> None:
+    """Tool to check if a component has already been dowloaded, and if not download it"""
+    component_path = os.path.join(main_dir, f"{component}.tsx")
+
+    if os.path.exists(component_path):
+        print(f"{component} is already installed.")
+        return
+    else:
+        print(f"Installing {component}...")
+    try:
+        command = f"echo 'Use --force' | npx shadcn@latest add {component}"
+        subprocess.run(
+            command,
+            shell=True,
+            check=True,
+            text=True,
+            cwd=base_dir
+        )
+        print(f"{component} installed successfully.")
+    except subprocess.CalledProcessError as error:
+        print(f"Failed to install {component}: {error}")

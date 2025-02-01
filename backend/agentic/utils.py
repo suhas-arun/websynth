@@ -49,3 +49,14 @@ def extract_xml(text: str, tag: str) -> str:
     """
     match = re.search(f'<{tag}>(.*?)</{tag}>', text, re.DOTALL)
     return match.group(1) if match else ""
+
+
+def extract_tsx_code(text):
+    """
+    Extracts TypeScript React (TSX) code from a given text string.
+
+    :param text: String containing text with embedded TSX code.
+    :return: Extracted TSX code as a string.
+    """
+    match = re.search(r'```tsx\n(.*?)\n```', text, re.DOTALL)
+    return match.group(1) if match else None

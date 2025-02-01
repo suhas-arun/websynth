@@ -1,11 +1,6 @@
 from langchain_anthropic import ChatAnthropic
-
-from langchain_core.tools import tools
-
 from dotenv import load_dotenv
-
 import os
-
 import re
 
 class ClaudeClient:

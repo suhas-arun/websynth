@@ -8,7 +8,16 @@ import {
   FormField,
   FormItem,
 } from "@/components/ui/form";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer"
 import TextareaAutosize from "react-textarea-autosize";
+import { Input } from "@/components/ui/input";
 
 const formSchema = z.object({
   prompt: z.string(),
@@ -35,25 +44,45 @@ const InputPrompt = () => {
   }
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="w-1/2">
-        <FormField
-          control={form.control}
-          name="prompt"
-          render={({ field }) => (
-            <FormItem>
-                <TextareaAutosize
-                  placeholder="Ask Claude..." {...field}
-                  className="border-solid resize-none border-2 border-gray-300 rounded-md w-full p-2"
-                  onKeyDown={handleKeyDown}
-                  minRows={1}
-                  maxRows={4}
+    <div className="w-full h-full">
+      <div className="fixed bottom-0 left-0 right-0 w-full max-w-2xl mx-auto px-4 mb-4 flex justify-center items-center">
+        <Drawer>
+          <DrawerTrigger className="w-full">
+            <Input
+              placeholder="Ask Claude..."
+              className="border-solid resize-none border-2 border-blue-900 rounded-md w-full p-2"
+            />
+          </DrawerTrigger>
+          <DrawerContent className="max-w-[60%] mx-auto left-0 right-0 flex items-center text-center">
+            <DrawerHeader>
+              <DrawerTitle className="text-center">Overall Structure</DrawerTitle>
+              <DrawerDescription>Describe how you want the components to interact.</DrawerDescription>
+            </DrawerHeader>
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="w-5/6 pb-4">
+                <FormField
+                  control={form.control}
+                  name="prompt"
+                  render={({ field }) => (
+                    <FormItem>
+                      <TextareaAutosize
+                        placeholder="Ask Claude..." {...field}
+                        className="border-solid resize-none border-2 border-blue-00 rounded-md w-full p-2"
+                        onKeyDown={handleKeyDown}
+                        minRows={2}
+                        maxRows={6}
+                        autoFocus={true}
+                      />
+                    </FormItem>
+                  )}
                 />
-            </FormItem>
-          )}
-        />
-      </form>
-    </Form>
+              </form>
+            </Form>
+          </DrawerContent>
+        </Drawer>
+      </div>
+    </div>
+
   )
 }
 

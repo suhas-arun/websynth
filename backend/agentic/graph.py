@@ -1,6 +1,7 @@
 from langgraph.graph import StateGraph, MessagesState, START, END
 from utils import ClaudeClient
 from langgraph.prebuilt import ToolNode
+from CustomToolNode import WebSynthToolNode
 from langchain_core.prompts import SystemMessagePromptTemplate
 
 class AgenticWorkflow:
@@ -9,7 +10,7 @@ class AgenticWorkflow:
       self.agent = ClaudeClient()
       self.tools = tools
       self.model_with_tools = self.agent.client.bind_tools(tools)
-      self.tool_node = ToolNode(self.tools)
+      self.tool_node = WebSynthToolNode(self.tools)
 
   def should_continue(self, state: MessagesState):
       messages = state["messages"]
@@ -19,10 +20,10 @@ class AgenticWorkflow:
       return END
 
   def call_model(self, state: MessagesState):
-      print("Calling model")
+    #   print("Calling model")
       messages = state["messages"]
       response = self.model_with_tools.invoke(messages)
-      print(response)
+    #   print('Tool Model Response: ', response.tool_calls)
       return {"messages": [response]}
 
   def compile_graph(self):

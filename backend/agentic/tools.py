@@ -40,6 +40,7 @@ def list_dir(dir_path: str) -> list:
     print('Listing directory: ', os.path.join(main_dir, dir_path))
     print('Result: ', os.listdir(os.path.join(main_dir, dir_path)))
     return os.listdir(os.path.join(main_dir, dir_path))
+
 @tool
 def check_install(component:str) -> None:
     """Tool to check if a component has already been dowloaded, and if not download it"""

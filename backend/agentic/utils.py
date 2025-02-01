@@ -1,8 +1,12 @@
 from langchain_anthropic import ChatAnthropic
 
+from langchain_core.tools import tools
+
 from dotenv import load_dotenv
 
 import os
+
+import re
 
 class ClaudeClient:
 
@@ -10,42 +14,42 @@ class ClaudeClient:
         load_dotenv()
         if "ANTHROPIC_API_KEY" not in os.environ:
             print("no API key!")
-        self.model = ChatAnthropic(model_name="claude-3-5-haiku-latest")
+        self.client = ChatAnthropic(model_name="claude-3-5-haiku-latest")
 
 
-def llm_call(prompt: str, system_prompt: str = "", model="claude-3-5-sonnet-20241022") -> str:
-    """
-    Calls the model with the given prompt and returns the response.
+    def llm_call(self, model="claude-3-5-haiku-latest") -> str:
+        """
+        Calls the model with the given prompt and returns the response.
 
-    Args:
-        prompt (str): The user prompt to send to the model.
-        system_prompt (str, optional): The system prompt to send to the model. Defaults to "".
-        model (str, optional): The model to use for the call. Defaults to "claude-3-5-sonnet-20241022".
+        Args:
+            prompt (str): The user prompt to send to the model.
+            system_prompt (str, optional): The system prompt to send to the model. Defaults to "".
+            model (str, optional): The model to use for the call. Defaults to "claude-3-5-sonnet-20241022".
 
-    Returns:
-        str: The response from the language model.
-    """
-    client = Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
-    messages = [{"role": "user", "content": prompt}]
-    response = client.messages.create(
-        model=model,
-        max_tokens=4096,
-        system=system_prompt,
-        messages=messages,
-        temperature=0.1,
-    )
-    return response.content[0].text
+        Returns:
+            str: The response from the language model.
+        """
 
-def extract_xml(text: str, tag: str) -> str:
-    """
-    Extracts the content of the specified XML tag from the given text. Used for parsing structured responses 
+        output = self.client.generate({"""Give me the code for a typescript (.tsx) react website with shadcn components, 
+                            that has button and an input. Assume already that shadcn and all components are installed. Just give the website code nothing else and ensure the code is delimited by ```"""})
+        response = output.generations[0][0].text
 
-    Args:
-        text (str): The text containing the XML.
-        tag (str): The XML tag to extract content from.
+        print(response)
+        extracted_typescript = self.extract_tsx_code(response)
 
-    Returns:
-        str: The content of the specified XML tag, or an empty string if the tag is not found.
-    """
-    match = re.search(f'<{tag}>(.*?)</{tag}>', text, re.DOTALL)
-    return match.group(1) if match else ""
+        print(extracted_typescript)
+        return extracted_typescript
+
+    def extract_tsx_code(self, text: str):
+        """
+        Extracts TypeScript React (TSX) code from a given text string.
+
+        :param text: String containing text with embedded TSX code.
+        :return: Extracted TSX code as a string.
+        """
+        match = re.search(r'```tsx\n(.*?)\n```', text, re.DOTALL)
+        return match.group(1) if match else None
+    
+    def rewrite_code(code: str, pathname: str="backend/virtual-frontend/src/app/page.tsx"):
+        with open(pathname) as f:
+            f.write(code)

@@ -1,7 +1,11 @@
 from langchain_core.tools import tool
 import os
+import subprocess
+base_dir = '../virtual-frontend'
 
-main_dir = '../virtual-frontend/src/app/'
+# main_dir = '../virtual-frontend/src/app/'
+main_dir = os.path.join(base_dir,'/src/app/')
+comp_dir = os.path.join(base_dir,'src/components/ui')
 
 @tool
 def read_file(file_path: str) -> str:
@@ -36,3 +40,24 @@ def list_dir(dir_path: str) -> list:
     print('Listing directory: ', os.path.join(main_dir, dir_path))
     print('Result: ', os.listdir(os.path.join(main_dir, dir_path)))
     return os.listdir(os.path.join(main_dir, dir_path))
+@tool
+def check_install(component:str) -> None:
+    """Tool to check if a component has already been dowloaded, and if not download it"""
+    component_path = os.path.join(main_dir, f"{component}.tsx")
+
+    if os.path.exists(component_path):
+        print(f"{component} is already installed.")
+        return
+    else:
+        print(f"Installing {component}...")
+    try:
+        subprocess.run(
+            ["npx", "shadcn@latest", "add", component],
+            check=True,
+            text=True,
+            cwd=base_dir
+        )
+        print(f"{component} installed successfully.")
+    except subprocess.CalledProcessError as error:
+        print(f"Failed to install {component}: {error}")
+

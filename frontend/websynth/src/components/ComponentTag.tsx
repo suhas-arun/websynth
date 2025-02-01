@@ -9,14 +9,24 @@ import {
 interface ComponentTagProps {
   name: string;
   description: string;
+  onClick: () => void;
 }
 
-const ComponentTag: React.FC<ComponentTagProps> = ({ name, description }) => {
+const ComponentTag: React.FC<ComponentTagProps> = ({ name, description, onClick }) => {
   return (
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger asChild>
-          <Button variant="outline">{name}</Button>
+          <Button
+            className="p-4"
+            variant="outline"
+            onClick={(e) => {
+              e.stopPropagation();
+              onClick();
+            }}
+          >
+            {name}
+          </Button>
         </TooltipTrigger>
         <TooltipContent>
           <p>{description}</p>

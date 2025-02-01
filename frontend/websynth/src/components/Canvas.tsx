@@ -4,17 +4,23 @@ import Sidesheet from "./Sidesheet";
 import ComponentTag from "./ComponentTag";
 
 const Canvas = () => {
+  // Selection state
   const [startPos, setStartPos] = useState<{ x: number; y: number } | null>(null);
   const [currentPos, setCurrentPos] = useState<{ x: number; y: number } | null>(null);
   const [isSelecting, setIsSelecting] = useState(false);
   const [selectedArea, setSelectedArea]
     = useState<{ x: number; y: number; width: number; height: number } | null>(null);
+
+  // Sidesheet state
   const [sidesheetOpen, setSidesheetOpen] = useState(false);
 
   // Stores components that have already been selected
   const [components, setComponents] = useState<
     { x: number; y: number; width: number; height: number, name: string, description: string }[]
   >([]);
+
+  // Currently selected component
+  const [selectedComponent, setSelectedComponent] = useState<{ index: number, name: string, description: string } | null>(null);
 
   // Handle Escape key to clear selection
   useEffect(() => {
@@ -53,6 +59,14 @@ const Canvas = () => {
     }
   };
 
+  const handleComponentClick = (index: number, name: string, description: string) => () => {
+    setIsSelecting(false);
+    setSelectedComponent({ index, name, description });
+    const component = components[index];
+    setSelectedArea({ ...component });
+    setSidesheetOpen(true);
+  };
+
   const handleMouseMove = (e: React.MouseEvent) => {
     if (isSelecting) {
       setCurrentPos({ x: e.clientX, y: e.clientY });
@@ -61,12 +75,22 @@ const Canvas = () => {
 
   const handleComponentSubmit = (name: string, description: string) => {
     if (!selectedArea) return;
-    setComponents([
-      ...components,
-      { ...selectedArea, name, description },
-    ]);
-    setSelectedArea(null);
-    setSidesheetOpen(false);
+    if (selectedComponent) {
+      // Edit existing component if selected
+      const updatedComponents = [...components];
+      updatedComponents[selectedComponent.index!] = { ...selectedArea, name, description };
+      setComponents(updatedComponents);
+      setSelectedComponent(null);
+      setSidesheetOpen(false);
+    } else {
+      // Add new component
+      setComponents([
+        ...components,
+        { ...selectedArea, name, description },
+      ]);
+      setSelectedArea(null);
+      setSidesheetOpen(false);
+    }
   };
 
   const getRectangleStyle = (
@@ -84,11 +108,12 @@ const Canvas = () => {
   };
 
   const getComponentElement = (
-    component: { x: number; y: number; width: number; height: number, name: string, description: string }
+    component: { x: number; y: number; width: number; height: number, name: string, description: string },
+    index: number
   ) => {
     return (
       <div
-        key={component.name}
+        key={index}
         style={{
           position: "absolute",
           left: component.x,
@@ -99,11 +124,14 @@ const Canvas = () => {
         }}
         className="flex flex-col justify-center items-center"
       >
-        <ComponentTag name={component.name} description={component.description} />
+        <ComponentTag
+          name={component.name}
+          description={component.description}
+          onClick={handleComponentClick(index, component.name, component.description)}
+        />
       </div>
     );
   };
-
 
   return (
     <div
@@ -129,12 +157,19 @@ const Canvas = () => {
       {/* Display sidesheet */}
       <Sidesheet
         open={sidesheetOpen}
-        onOpenChange={setSidesheetOpen}
+        onOpenChange={(open) => {
+          if (!open) {
+            setSelectedArea(null);
+            setSelectedComponent(null);
+          }
+          setSidesheetOpen(open);
+        }}
         onComponentSubmit={handleComponentSubmit}
+        selectedComponent={selectedComponent}
       />
 
       {/* Display selected components */}
-      {components.map((component, i) => getComponentElement(component))}
+      {components.map((component, i) => getComponentElement(component, i))}
     </div>
   );
 };

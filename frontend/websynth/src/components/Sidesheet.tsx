@@ -2,6 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
+import { useEffect } from "react"
 import {
   Sheet,
   SheetContent,
@@ -26,16 +27,15 @@ interface SidesheetProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onComponentSubmit?: (name: string, description: string) => void;
-  componentName?: string;
-  componentDescription?: string;
+  selectedComponent?: { name: string, description: string } | null;
 }
 
 const formSchema = z.object({
-  name: z.string(),
-  description: z.string(),
+  name: z.string().min(1, "Please enter a name."),
+  description: z.string().min(1, "Please enter a description."),
 });
 
-const Sidesheet: React.FC<SidesheetProps> = ({ open, onOpenChange, onComponentSubmit }) => {
+const Sidesheet: React.FC<SidesheetProps> = ({ open, onOpenChange, onComponentSubmit, selectedComponent }) => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -48,6 +48,21 @@ const Sidesheet: React.FC<SidesheetProps> = ({ open, onOpenChange, onComponentSu
     onComponentSubmit?.(values.name, values.description);
     form.reset();
   }
+
+  // Autofill form fields when a component is selected
+  useEffect(() => {
+    if (selectedComponent) {
+      form.setValue("name", selectedComponent.name);
+      form.setValue("description", selectedComponent.description);
+    }
+  }, [selectedComponent]);
+
+  // Reset form fields when the sidesheet is closed
+  useEffect(() => {
+    if (!open) {
+      form.reset();
+    }
+  }, [open]);
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -96,7 +111,9 @@ const Sidesheet: React.FC<SidesheetProps> = ({ open, onOpenChange, onComponentSu
               )}
             />
             <div className="flex flex-col">
-              <Button type="submit">Create Component</Button>
+              <Button type="submit">
+                {selectedComponent ? "Update Component" : "Create Component"}
+              </Button>
               <Button
                 type="reset"
                 variant="destructive"

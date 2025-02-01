@@ -3,14 +3,13 @@ from dotenv import load_dotenv
 import os
 import re
 
-class ClaudeClient:
 
+class ClaudeClient:
     def __init__(self, model="claude-3-5-haiku-latest"):
         load_dotenv()
         if "ANTHROPIC_API_KEY" not in os.environ:
             print("no API key!")
         self.client = ChatAnthropic(model_name=model)
-
 
     def llm_call(self) -> str:
         """
@@ -25,27 +24,32 @@ class ClaudeClient:
             str: The response from the language model.
         """
 
-        output = self.client.generate({"""Give me the code for a typescript (.tsx) react website with shadcn components, 
-                            that has button and an input. Assume already that shadcn and all components are installed. Just give the website code nothing else and ensure the code is delimited by ```"""})
+        output = self.client.generate(
+            {
+                """Give me the code for a typescript (.tsx) react website with shadcn components, 
+                            that has button and an input. Assume already that shadcn and all components are installed. Just give the website code nothing else and ensure the code is delimited by ```"""
+            }
+        )
         response = output.generations[0][0].text
 
         extracted_typescript = self.extract_tsx_code(response)
 
         print(extracted_typescript)
         return extracted_typescript
-    
-    # def repeated_code_check(self, code: str, max_repetitions: int = 3):
-    #     for _ in range(max_repetitions):
-    #         new_code = self.__check_code(code)
-    #         if new_code == "YES":
-    #             return new_code
-    #         code = self.__extract_tsx_code(new_code)
-    #     return code
 
-    def rewrite_code(self, code: str, pathname: str="backend/virtual-frontend/src/app/page.tsx"):
-        with open(pathname, 'w') as f:
+    def repeated_code_check(self, code: str, max_repetitions: int = 3):
+        for _ in range(max_repetitions):
+            new_code = self.__check_code(code)
+            if new_code == "YES":
+                return new_code
+            code = self.__extract_tsx_code(new_code)
+        return code
+
+    def rewrite_code(
+        self, code: str, pathname: str = "backend/virtual-frontend/src/app/page.tsx"
+    ):
+        with open(pathname, "w") as f:
             f.write(code)
-
 
     def __extract_tsx_code(self, text: str):
         """
@@ -54,9 +58,9 @@ class ClaudeClient:
         :param text: String containing text with embedded TSX code.
         :return: Extracted TSX code as a string.
         """
-        match = re.search(r'```tsx\n(.*?)\n```', text, re.DOTALL)
+        match = re.search(r"```tsx\n(.*?)\n```", text, re.DOTALL)
         return match.group(1) if match else None
-        
+
     def __check_code(self, code_str: str):
         prompt = """You are an expert in TypeScript and React, specializing in Next.js. Your task is to evaluate the syntax of a given page.tsx file. The code is below, delimited by ```.
         
@@ -73,5 +77,5 @@ class ClaudeClient:
 
         print(output)
 
-        if output=="YES":
+        if output == "YES":
             return True

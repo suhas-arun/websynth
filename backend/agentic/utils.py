@@ -24,13 +24,12 @@ class ClaudeClient:
         """
 
         output = self.client.generate(
-            prompt
+            prompt + "Ensure all code is delimited by ```."
         )
         response = output.generations[0][0].text
 
         extracted_typescript = self.extract_tsx_code(response)
 
-        print(extracted_typescript)
         return extracted_typescript
 
     def repeated_code_check(self, code: str, max_repetitions: int = 3):

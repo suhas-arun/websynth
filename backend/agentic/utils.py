@@ -11,24 +11,20 @@ class ClaudeClient:
             print("no API key!")
         self.client = ChatAnthropic(model_name=model)
 
-    def llm_call(self) -> str:
+    def llm_call(self, prompt) -> str:
         """
         Calls the model with the given prompt and returns the response.
 
         Args:
             prompt (str): The user prompt to send to the model.
             system_prompt (str, optional): The system prompt to send to the model. Defaults to "".
-            model (str, optional): The model to use for the call. Defaults to "claude-3-5-sonnet-20241022".
 
         Returns:
             str: The response from the language model.
         """
 
         output = self.client.generate(
-            {
-                """Give me the code for a typescript (.tsx) react website with shadcn components, 
-                            that has button and an input. Assume already that shadcn and all components are installed. Just give the website code nothing else and ensure the code is delimited by ```"""
-            }
+            prompt
         )
         response = output.generations[0][0].text
 

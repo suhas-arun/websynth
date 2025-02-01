@@ -45,6 +45,6 @@ class ClaudeClient:
         match = re.search(r'```tsx\n(.*?)\n```', text, re.DOTALL)
         return match.group(1) if match else None
     
-    def rewrite_code(code: str, pathname: str="backend/virtual-frontend/src/app/page.tsx"):
-        with open(pathname) as f:
+    def rewrite_code(self, code: str, pathname: str="backend/virtual-frontend/src/app/page.tsx"):
+        with open(pathname,'w') as f:
             f.write(code)

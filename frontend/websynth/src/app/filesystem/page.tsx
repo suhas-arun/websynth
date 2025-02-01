@@ -3,6 +3,8 @@
 import { useState, useEffect, useRef } from "react";
 import { WebContainer} from "@webcontainer/api";
 import type { FileSystemTree } from "@webcontainer/api";
+import { selectRootDir, recurseParseDirToFsTree } from "@/utils/filesystem";
+import test from "node:test";
 
 export default function FileAccess() {
   const [fileHandle, setFileHandle] = useState<FileSystemFileHandle | null>(null);
@@ -25,6 +27,33 @@ export default function FileAccess() {
     const textExtensions = [".js", ".ts", ".json", ".html", ".css", ".md", ".txt", ".env", ".tsx", ".mjs", ".cjs", ".svg", ".png", ".jpg", ".jpeg"];
     return textExtensions.some((ext) => fileName.endsWith(ext));
   };
+
+  // const testFunction = async () => {
+  //   try {
+  //     const rootDir = await selectRootDir();
+  //     console.log("Root directory:", rootDir);
+  //     const fsTree = await recurseParseDirToFsTree(rootDir);
+  //     console.log("File System Tree:", fsTree);
+
+  //     if (webcontainerInstance.current) {
+  //       await mountDirAt(fsTree, APP_MOUNT, webcontainerInstance.current);
+  //       await mountDirAt(fsTree, FALLBACK_MOUNT, webcontainerInstance.current);
+
+  //       const appPid = await runNpmAt(webcontainerInstance.current, APP_MOUNT);
+  //       console.log("App PID:", appPid);
+  //       const fallbackPid = await runNpmAt(webcontainerInstance.current, FALLBACK_MOUNT);
+  //       console.log("Fallback PID:", fallbackPid);
+
+  //       const killedApp = await killNpmWithPid(webcontainerInstance.current, appPid);
+  //       const killledFallback = await killNpmWithPid(webcontainerInstance.current, fallbackPid);
+
+  //       console.log("Killed App:", killedApp);
+  //       console.log("Killed Fallback:", killledFallback);
+  //     }
+  //   } catch (error) {
+  //     console.error("Error loading folder:", error);
+  //   }
+  // }
 
   const readDirectory = async (dirHandle: FileSystemDirectoryHandle): Promise<any> => {
     const result: Record<string, any> = {}; // Root object
@@ -72,7 +101,23 @@ export default function FileAccess() {
 
       // Mount the folder in WebContainer
       if (webcontainerInstance.current) {
-        await webcontainerInstance.current.mount(files);
+        // try{
+          // const currentDir = await webcontainerInstance.current.fs.readdir("/");
+          // console.log("Current directory:", currentDir);
+          // await webcontainerInstance.current.fs.rm("/", { recursive: true });
+        // } catch (error) {
+        //   console.error("Error removing folder:", error);
+        // }
+
+        try {
+          await webcontainerInstance.current.fs.rm('app', { recursive: true });
+          console.log("Removed app folder");
+        } catch (error) {
+          console.error("Error removing folder:", error);
+        }
+        
+        await webcontainerInstance.current.fs.mkdir('app');
+        await webcontainerInstance.current.mount(files, { mountPoint: 'app' });
       }
 
       console.log("✅ Mounted Project");
@@ -85,8 +130,9 @@ export default function FileAccess() {
   const runInWebContainer = async () => {
     console.log("Attempting to install and run...")
     if (webcontainerInstance.current) {
+      await webcontainerInstance.current.spawn('cd', ['app']);
       console.log("Webcontainer exists and is found...")
-      const installProcess = await webcontainerInstance.current.spawn('npm', ['install']);
+      const installProcess = await webcontainerInstance.current.spawn('npm', ['--prefix', 'app/', 'install']);
       console.log("Install process started...")
 
       installProcess.output.pipeTo(new WritableStream({
@@ -105,7 +151,7 @@ export default function FileAccess() {
 
       console.log("Starting dev server...")
       // `npm run dev`
-      const startProcess = await webcontainerInstance.current.spawn("sh", ["-c", "TURBO_DISABLED=1 npm run dev"]);
+      const startProcess = await webcontainerInstance.current.spawn("sh", ["-c", "TURBO_DISABLED=1 npm -prefix app/ run dev"]);
       // const startProcess = await webcontainerInstance.current.spawn('npm', ['run', 'dev']);
 
       startProcess.output.pipeTo(new WritableStream({
@@ -171,3 +217,4 @@ export default function FileAccess() {
     </div>
   );
 }
+

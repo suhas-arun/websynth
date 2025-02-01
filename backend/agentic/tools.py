@@ -1,21 +1,22 @@
 from langchain_core.tools import tool
 import os
+from utils import ClaudeClient
 
 main_dir = '../virtual-frontend/src/app/'
 
-@tool
-def read_file(file_path: str) -> str:
-    """Tool to read a file and return its content as a string."""
-    print('Reading file: ', file_path)
-    with open(os.path.join(main_dir, file_path), "r") as f:
-        return f.read() 
+# @tool
+# def read_file(file_path: str) -> str:
+#     """Tool to read a file and return its content as a string."""
+#     print('Reading file: ', file_path)
+#     with open(os.path.join(main_dir, file_path), "r") as f:
+#         return f.read() 
     
-@tool
-def write_to_file(file_path: str, content: str) -> None:
-    """Tool to create or write content to a file."""
-    print('Writing to file: ', file_path)
-    with open(os.path.join(main_dir, file_path), "w") as f:
-        f.write(content)  
+# @tool
+# def write_to_file(file_path: str, content: str) -> None:
+#     """Tool to create or write content to a file."""
+#     print('Writing to file: ', file_path)
+#     with open(os.path.join(main_dir, file_path), "w") as f:
+#         f.write(content)  
     
 @tool
 def create_dir(dir_path: str) -> None:
@@ -23,9 +24,45 @@ def create_dir(dir_path: str) -> None:
     print('Creating directory: ', dir_path)
     os.makedirs(os.path.join(main_dir, dir_path), exist_ok=True)
 
+@tool
+def create_file(file_path: str) -> None:
+    """Tool to create or write content to a file."""
+    print('Writing to file: ', file_path)
+    with open(os.path.join(main_dir, file_path), "w") as f:
+        f.write('')  
+
 @tool 
 def list_dir(dir_path: str) -> list:
     """Tool to list the contents of a directory."""
     print('Listing directory: ', os.path.join(main_dir, dir_path))
     print('Result: ', os.listdir(os.path.join(main_dir, dir_path)))
     return os.listdir(os.path.join(main_dir, dir_path))
+
+@tool
+def make_change_to_file(file_path: str, changes: str) -> str:
+    """Tool to tell a programmer what changes to make to a file.
+    
+    Args:
+        file_path (str): The path to the file to make changes to.
+        change (str): A descriptive message explaining the change to make.
+    """
+
+    # Get the code from file
+    with open(os.path.join(main_dir, file_path), "r") as f:
+        current_code = f.read() 
+    
+    programmer = ClaudeClient()
+    prompt = f"""You are a programmer tasked with making changes to the following code. You have all shadcn components install and available to you.
+        Code:\n{current_code}
+        Changes:\n{changes}        
+    """ 
+    code = programmer.llm_call(prompt)
+    
+    tsx_code = programmer.extract_tsx_code(code)
+
+    if tsx_code is None:
+        return "No TSX code found in the response. Please try again."
+    
+    programmer.rewrite_code(tsx_code, os.path.join(main_dir, file_path))
+    
+    return f"The changes to the code were successfully made to the file: {file_path}"

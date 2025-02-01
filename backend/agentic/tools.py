@@ -51,8 +51,10 @@ def check_install(component:str) -> None:
     else:
         print(f"Installing {component}...")
     try:
+        command = f"echo 'Use --force' | npx shadcn@latest add {component}"
         subprocess.run(
-            ["npx", "shadcn@latest", "add", component],
+            command,
+            shell=True,
             check=True,
             text=True,
             cwd=base_dir

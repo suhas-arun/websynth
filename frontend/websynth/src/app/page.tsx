@@ -1,13 +1,13 @@
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import Image from "next/image";
+import InputPrompt from "@/components/InputPrompt";
+import Canvas from "@/components/Canvas";
 
 export default function Home() {
   return (
     <div className="justify-center items-center flex flex-col h-screen">
-      <p className="font-bold">Welcome to WebSynth</p>
-      <Button>Get Started</Button>
-      <Input placeholder="Enter your email" />
+      <div className="w-full h-full">
+        <Canvas />
+      </div>
+        <InputPrompt />
     </div>
   );
 }

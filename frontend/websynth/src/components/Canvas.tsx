@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import Sidesheet from "./Sidesheet";
 
 const Canvas = () => {
   const [startPos, setStartPos] = useState<{ x: number; y: number } | null>(null);
@@ -7,8 +8,10 @@ const Canvas = () => {
   const [isSelecting, setIsSelecting] = useState(false);
   const [selectedArea, setSelectedArea]
     = useState<{ x: number; y: number; width: number; height: number } | null>(null);
+  const [sidesheetOpen, setSidesheetOpen] = useState(false);
 
   const handleClick = (e: React.MouseEvent) => {
+    if (sidesheetOpen) return;
     if (!isSelecting) {
       setSelectedArea(null);
       // Start selecting: Record the initial position
@@ -26,6 +29,7 @@ const Canvas = () => {
         height: Math.abs(currentPos!.y - startPos!.y),
       });
       console.log(selectedArea);
+      setSidesheetOpen(true);
     }
   };
 
@@ -44,8 +48,8 @@ const Canvas = () => {
       top: rectangle.y,
       width: rectangle.width,
       height: rectangle.height,
-      border: "2px solid blue",
-      backgroundColor: "rgba(0, 0, 255, 0.2)",
+      border: "2px solid black",
+      backgroundColor: "rgba(50, 50, 50, 0.2)",
     };
   };
 
@@ -56,7 +60,7 @@ const Canvas = () => {
       onMouseMove={handleMouseMove}
     >
       {/* Display area while selecting */}
-      {isSelecting && startPos && currentPos && 
+      {isSelecting && startPos && currentPos &&
         <div style={getRectangleStyle({
           x: Math.min(startPos.x, currentPos.x),
           y: Math.min(startPos.y, currentPos.y),
@@ -70,6 +74,11 @@ const Canvas = () => {
         <div style={getRectangleStyle(selectedArea)} />
       }
 
+      {/* Display sidesheet */} 
+      <Sidesheet 
+        open={sidesheetOpen}
+        onOpenChange={setSidesheetOpen}  
+      />
     </div>
   );
 };

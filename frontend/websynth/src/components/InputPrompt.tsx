@@ -18,12 +18,17 @@ import {
 } from "@/components/ui/drawer"
 import TextareaAutosize from "react-textarea-autosize";
 import { Input } from "@/components/ui/input";
+import { captureScreenshot } from "@/utils/captureScreenshot";
+
+interface InputPromptProps {
+  homepageRef?: React.RefObject<HTMLDivElement | null>;
+}
 
 const formSchema = z.object({
   prompt: z.string(),
 })
 
-const InputPrompt = () => {
+const InputPrompt: React.FC<InputPromptProps> = ({ homepageRef }) => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -40,11 +45,13 @@ const InputPrompt = () => {
   }
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
+    if (homepageRef && homepageRef.current) {
+      captureScreenshot(homepageRef.current);
+    }
   }
 
   return (
-    <div className="w-full h-full">
+    <div className="w-full h-full" data-html2canvas-ignore="true">
       <div className="fixed bottom-0 left-0 right-0 w-full max-w-2xl mx-auto px-4 mb-4 flex justify-center items-center">
         <Drawer>
           <DrawerTrigger className="w-full">

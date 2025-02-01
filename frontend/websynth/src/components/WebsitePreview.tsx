@@ -33,9 +33,7 @@ const WebsitePreview = () => {
     setFileSystemTree(fsTree);
 
     if (webcontainerInstance.current) {
-      mountDirAt(fsTree, ROOT_DIR, webcontainerInstance.current);
-      // iframeRef.current!.src = ROOT_DIR;
-
+      await mountDirAt(fsTree, ROOT_DIR, webcontainerInstance.current);
     }
   };
 
@@ -46,9 +44,15 @@ const WebsitePreview = () => {
       const compiled = await runNpmAt(webcontainerInstance.current, ROOT_DIR);
       console.log("Compiled:", compiled);
 
+      if (iframeRef.current) {
+        console.log("iframe exists...")
+      } else {
+        console.log("iframe does not exist...")
+      }
+
       webcontainerInstance.current.on('server-ready', (port, url) => {
-        console.log(`Server ready at: ${url}`);
         iframeRef.current!.src = url;
+        console.log("iframe exists")
       })
     }
   };

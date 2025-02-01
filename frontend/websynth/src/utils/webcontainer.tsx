@@ -56,7 +56,9 @@ const killNpm = async (webContainer: WebContainer): Promise<boolean> => {
 
 const runNpmAt = async (webContainer: WebContainer, mountPoint: string): Promise<boolean> => {
   try {
-    const npmProcess = await webContainer.spawn('sh', ['-c', 'cd', mountPoint, '&& npm run dev && cd ..']);
+    // const npmProcess = await webContainer.spawn('sh', ['-c', 'cd', mountPoint, '&& npm run dev && cd ..']);
+		const npmProcess = await webContainer.spawn('sh', ['-c', `npm --prefix ${mountPoint} run dev`]);
+
     npmProcess.output.pipeTo(new WritableStream({
       write(data) {
         console.log(data);
@@ -80,7 +82,7 @@ const runNpmInstallAt = async (webContainer: WebContainer, mountPoint: string): 
       console.log("Mount point does not exist: ", error);
     }
 
-    const installProcess = await webContainer.spawn('sh', ['-c', 'cd', mountPoint, '&& npm install && cd ..']);
+    const installProcess = await webContainer.spawn('sh', ['-c', `npm --prefix ${mountPoint} install`]);
     installProcess.output.pipeTo(new WritableStream({
       write(data) {
         console.log(data);

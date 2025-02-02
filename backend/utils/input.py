@@ -8,6 +8,7 @@ class Component(BaseModel):
     height: int
     name: str
     description: str
+    page: str
 
 class Data(BaseModel):
     prompt: str
@@ -21,7 +22,6 @@ def input_to_prompt(data: Data) -> str:
     components = data.components
     prompt = "The user has the general prompt: " + general_prompt + "\n"
     for component in components:
-        prompt += f"Create/Edit a Component: {component.name} at position: x: {component.x}, y: {component.y} with the Description: {component.description}\n"
-    
+        prompt += f"Create/Edit a Component: {component.name} at position: x: {component.x}, y: {component.y} that is within these bounds height: {component.height} and width {component.width} with the Description: {component.description}\n on the route: {component.page}\n"
     print(prompt)
     return prompt

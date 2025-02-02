@@ -49,7 +49,7 @@ const InputPrompt: React.FC<InputPromptProps> = ({ homepageRef, handleSubmit }) 
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     if (homepageRef && homepageRef.current) {
-      let screenshot = await captureScreenshot(homepageRef.current);
+      const screenshot = await captureScreenshot(homepageRef.current);
       handleSubmit(values.prompt, screenshot);
     }
     form.reset(); 

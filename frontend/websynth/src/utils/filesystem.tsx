@@ -1,5 +1,8 @@
 "use client";
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
+
 import type { FileSystemTree } from "@webcontainer/api";
 // import JSZip from "jszip";
 
@@ -101,3 +104,5 @@ export const hasPackageJsonChanges = (diffs: Map<string, string>): boolean => {
 };
 
 export { selectRootDir, recurseParseDirToFsTree, compareFsTrees }; 
+
+/* eslint-enable @typescript-eslint/no-explicit-any */

@@ -23,6 +23,7 @@ export default function Home() {
       prompt,
       screenshot,
       components,
+      root: "~/dev/websynth/demos/test-app",
     };
     console.log(request)
     const response = sendRequestToBackend(BACKEND_ENDPOINT, request);

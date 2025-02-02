@@ -14,6 +14,7 @@ class Data(BaseModel):
     prompt: str
     screenshot: str
     components: List[Component]
+    root: str
 
 
 def input_to_prompt(data: Data) -> str:

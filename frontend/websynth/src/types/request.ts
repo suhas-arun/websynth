@@ -4,4 +4,5 @@ export type Request = {
   prompt: string;
   screenshot: string;
   components: Component[];
+  root: string;
 };

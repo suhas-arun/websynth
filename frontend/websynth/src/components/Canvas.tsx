@@ -2,19 +2,22 @@
 import { useState, useEffect } from "react";
 import Sidesheet from "./Sidesheet";
 import ComponentTag from "./ComponentTag";
-import { Switch } from "./ui/switch";
-import { Label } from "./ui/label";
+
 import { Component } from "@/types/component";
+import DevSidebar from "./DevSidebar";
 
 interface CanvasProps {
   devMode: boolean;
   setDevMode: (devMode: boolean) => void;
   components: Component[];
-  setComponents: (components: Component[]) => void;   
+  setComponents: (components: Component[]) => void;
+  loadFsAndRefresh: () => void;
+  installAndCompile: () => void;
   currentUrl: string; 
 }
 
-const Canvas: React.FC<CanvasProps> = ({ devMode, setDevMode, components, setComponents, currentUrl }) => {
+const Canvas: React.FC<CanvasProps> = (
+  { devMode, setDevMode, components, setComponents, loadFsAndRefresh, installAndCompile, currentUrl }) => {
   // Selection state
   const [startPos, setStartPos] = useState<{ x: number; y: number } | null>(null);
   const [currentPos, setCurrentPos] = useState<{ x: number; y: number } | null>(null);
@@ -151,7 +154,7 @@ const Canvas: React.FC<CanvasProps> = ({ devMode, setDevMode, components, setCom
     );
   };
 
-  const toggleDevMode = (checked: boolean) => {
+  const toggleDevMode = async (checked: boolean) => {
     if (!checked) {
       setIsSelecting(false);
       setStartPos(null);
@@ -168,57 +171,52 @@ const Canvas: React.FC<CanvasProps> = ({ devMode, setDevMode, components, setCom
   }
 
   return (
-    <div
-      className={`w-full h-screen bg-opacity-0 pointer-events-${devMode ? "auto" : "none"}`}
-      onClick={handleClick} // Use click event to toggle selection
-      onMouseMove={handleMouseMove}
-      
-    >
-      <div className="absolute top-4 left-4 pointer-events-auto z-10">
-        <div className="flex items-center gap-2 bg-white border-solid border-gray-800 border-2 rounded-md p-2">
-          <Switch
-            id="dev-mode"
-            checked={devMode}
-            onCheckedChange={(checked) => toggleDevMode(checked)}
-          />
-          <Label htmlFor="dev-mode">Dev Mode</Label>
-        </div>
-      </div>
+    <div>
+      <DevSidebar
+        devMode={devMode}
+        toggleDevMode={toggleDevMode}
+        loadFsAndRefresh={loadFsAndRefresh}
+        installAndCompile={installAndCompile}
+      />
+      <div
+        className={`w-full h-screen bg-opacity-0 pointer-events-${devMode ? "auto" : "none"}`}
+        onClick={handleClick} // Use click event to toggle selection
+        onMouseMove={handleMouseMove}
+      >
+        {/* Display area while selecting */}
+        {devMode && isSelecting && startPos && currentPos &&
+          <div style={getRectangleStyle({
+            x: Math.min(startPos.x, currentPos.x),
+            y: Math.min(startPos.y, currentPos.y),
+            width: Math.abs(currentPos.x - startPos.x),
+            height: Math.abs(currentPos.y - startPos.y),
+          })} />
+        }
 
+        {/* Display selected area */}
+        {devMode && selectedArea &&
+          <div style={getRectangleStyle(selectedArea)} />
+        }
 
-      {/* Display area while selecting */}
-      {devMode && isSelecting && startPos && currentPos &&
-        <div style={getRectangleStyle({
-          x: Math.min(startPos.x, currentPos.x),
-          y: Math.min(startPos.y, currentPos.y),
-          width: Math.abs(currentPos.x - startPos.x),
-          height: Math.abs(currentPos.y - startPos.y),
-        })} />
-      }
-
-      {/* Display selected area */}
-      {devMode && selectedArea &&
-        <div style={getRectangleStyle(selectedArea)} />
-      }
-
-      {/* Display sidesheet */}
-      <Sidesheet
-        open={sidesheetOpen}
-        onOpenChange={(open) => {
-          if (!open) {
-            setSelectedArea(null);
-            setSelectedComponent(null);
-          }
-          setSidesheetOpen(open);
-        }}
-        onComponentSubmit={handleComponentSubmit}
-        onComponentDelete={handleComponentDelete}
-        selectedComponent={selectedComponent}
-        page={currentUrl}
+        {/* Display sidesheet */}
+        <Sidesheet
+          open={sidesheetOpen}
+          onOpenChange={(open) => {
+            if (!open) {
+              toggleDevMode(false);
+              setTimeout(() => toggleDevMode(true), 10);
+            }
+            setSidesheetOpen(open);
+          }}
+          onComponentSubmit={handleComponentSubmit}
+          onComponentDelete={handleComponentDelete}
+          selectedComponent={selectedComponent}
+          page={currentUrl}
       />
 
-      {/* Display selected components */}
-      {devMode && components.map((component, i) => getComponentElement(component, i))}
+        {/* Display selected components */}
+        {devMode && components.map((component, i) => getComponentElement(component, i))}
+      </div>
     </div>
   );
 };

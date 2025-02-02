@@ -20,7 +20,7 @@ import Convert from "ansi-to-html";
 
 export default function Home() {
   // Dev mode => user can select components. Otherwise, they interact directly with the page
-  const [devMode, setDevMode] = useState(false);
+  const [devMode, setDevMode] = useState(true);
   const [currentUrl, setCurrentUrl] = useState<string>("/");
   const pageRef = useRef<HTMLDivElement>(null);
 
@@ -30,6 +30,7 @@ export default function Home() {
   // States for file system handling
   const [fileHandle, setFileHandle] = useState<FileSystemDirectoryHandle | null>(null);
   const [fileSystemTree, setFileSystemTree] = useState<FileSystemTree | null>(null);
+  const [rootPath, setRootPath] = useState<string | null>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const webcontainerInstance = useRef<WebContainer>(null);
 
@@ -87,15 +88,28 @@ export default function Home() {
     } else {
       addLog("No file system tree found. Please select a directory.");
 
-      // Select root directory
-      const rootDir = await selectRootDir();
-      setFileHandle(rootDir);
-      const fsTree = await recurseParseDirToFsTree(rootDir);
-      setFileSystemTree(fsTree);
+      try {
+        // Select root directory
+        const rootDir = await selectRootDir();
+        setFileHandle(rootDir);
+        let rootPath = window.prompt("Please enter the root directory path:");
+        if (!rootPath) {
+          addLog("No path entered. Aborting...");
+          return;
+        }
+        setRootPath(rootPath);
+        addLog("Selected root directory: " + rootPath);
 
-      addLog("Mounting directory...");
-      await mountDirAt(fsTree, ROOT_DIR, webcontainerInstance.current!);
-      compile = true;
+        const fsTree = await recurseParseDirToFsTree(rootDir);
+        setFileSystemTree(fsTree);
+
+        addLog("Mounting directory...");
+        await mountDirAt(fsTree, ROOT_DIR, webcontainerInstance.current!);
+        compile = true;
+      } catch (error) {
+        addLog("Error selecting root directory: " + error);
+        return;
+      }
     }
 
     // Recompile if necessary
@@ -147,7 +161,7 @@ export default function Home() {
           installAndCompile={installAndCompile}
           currentUrl={currentUrl}
         />
-        <WebsitePreview devMode={devMode} iframeRef={iframeRef} setCurrentUrl={setCurrentUrl}/>
+        <WebsitePreview devMode={devMode} iframeRef={iframeRef} setCurrentUrl={setCurrentUrl} />
       </div>
       <InputPrompt homepageRef={pageRef} handleSubmit={handleSubmit} />
 

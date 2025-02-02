@@ -2,6 +2,10 @@ from langchain_anthropic import ChatAnthropic
 from dotenv import load_dotenv
 import os
 import re
+import subprocess
+import tempfile
+import utils
+import os
 
 
 class ClaudeClient:
@@ -23,9 +27,7 @@ class ClaudeClient:
             str: The response from the language model.
         """
 
-        output = self.client.generate(
-            prompt + "Ensure all code is delimited by ```."
-        )
+        output = self.client.generate(prompt + "Ensure all code is delimited by ```.")
         response = output.generations[0][0].text
 
         extracted_typescript = self.extract_tsx_code(response)
@@ -34,10 +36,12 @@ class ClaudeClient:
 
     def repeated_code_check(self, code: str, max_repetitions: int = 3):
         for _ in range(max_repetitions):
-            new_code = self.__check_code(code)
-            if new_code == "YES":
+            syntax_check = self.__syntax_check_typescript(code)
+            new_code = syntax_check[1]
+            if syntax_check[0] == False:
+                new_code = self.__extract_tsx_code(new_code)
+            if self.__type_check_typescript(new_code):
                 return new_code
-            code = self.__extract_tsx_code(new_code)
         return code
 
     def rewrite_code(
@@ -56,7 +60,7 @@ class ClaudeClient:
         match = re.search(r"```tsx\n(.*?)\n```", text, re.DOTALL)
         return match.group(1) if match else None
 
-    def __check_code(self, code_str: str):
+    def __syntax_check_typescript(self, code_str: str) -> (bool, str):
         prompt = """You are an expert in TypeScript and React, specializing in Next.js. Your task is to evaluate the syntax of a given page.tsx file. The code is below, delimited by ```.
         
         Rules:
@@ -70,7 +74,75 @@ class ClaudeClient:
         A new extract of the corrected page.tsx file with the relevant changes. Ensure the output contains only the corrected code, delimited by ```, and nothing else. Do not add any explanations or comments."""
         output = self.client.generate({f"""{prompt}\n ```{code_str}```"""})
 
-        print(output)
-
         if output == "YES":
-            return True
+            return (True, code_str)
+        else:
+            return (False, output)
+
+        return output
+
+    def __type_check_typescript(self, ts_code: str) -> bool:
+        with tempfile.NamedTemporaryFile(suffix=".ts", delete=False) as temp_file:
+            temp_file.write(ts_code.encode("utf-8"))
+            temp_file_path = temp_file.name
+
+        try:
+            result = subprocess.run(
+                ["npx", "tsc", "--noEmit", "--strict", temp_file_path],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+            )
+            error_output = result.stdout.strip() + "\n" + result.stderr.strip()
+            error_output = error_output.strip()
+
+            if result.returncode != 0 or error_output:
+                return False
+            else:
+                return True
+        finally:
+            os.remove(temp_file_path)
+
+        # Examples to test typechecking
+
+        # ex_1_valid = """function multiply(a: number, b: number): number {
+        #     return a * b;
+        # }
+
+        # const result: number = multiply(5, 10);
+        # console.log(result);
+        # """
+
+        # ex_1_invalid = """function concatenateStrings(a: string, b: string): string {
+        #     return a + b;
+        # }
+
+        # const result: number = concatenateStrings("Hello", "World"); // Type mismatch
+        # console.log(result);"""
+
+        # ex_2_valid = """interface User {
+        #     id: number;
+        #     name: string;
+        #     isAdmin: boolean;
+        # }
+
+        # const user: User = {
+        #     id: 1,
+        #     name: "Alice",
+        #     isAdmin: true
+        # };
+
+        # console.log(user);"""
+
+        # ex_2_invalid = """interface Product {
+        #     id: number;
+        #     name: string;
+        #     price: number;
+        # }
+
+        # const product: Product = {
+        #     id: "A100",  //  Type Error: should be a number
+        #     name: "Laptop",
+        #     price: "1999"  // Type Error: should be a number
+        # };
+        # console.log(product);"""

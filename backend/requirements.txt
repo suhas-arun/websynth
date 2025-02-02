@@ -106,4 +106,3 @@ watchfiles==1.0.4
 wcwidth==0.2.13
 websockets==14.2
 zstandard==0.23.0
-intersystems_irispython @ ./vector-db/intersystems_irispython-5.0.1-8026-cp38.cp39.cp310.cp311.cp312-cp38.cp39.cp310.cp311.cp312-macosx_10_9_universal2.whl

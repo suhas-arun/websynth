@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/popover"
 import { ScrollText, Terminal } from "lucide-react";
 import Convert from "ansi-to-html";
+import Instructions from "@/components/Instructions";
 
 export default function Home() {
   // Dev mode => user can select components. Otherwise, they interact directly with the page
@@ -141,7 +142,7 @@ export default function Home() {
       prompt,
       screenshot,
       components,
-      root: "~/dev/websynth/demos/test-app",
+      root: "/Users/benjames/dev/websynth/demos/test-app",
     };
     console.log(request)
     const response = sendRequestToBackend(BACKEND_ENDPOINT, request);
@@ -155,6 +156,7 @@ export default function Home() {
       ref={pageRef}
     >
       <div className="w-full h-full">
+        <Instructions />
         <Canvas
           devMode={devMode}
           setDevMode={setDevMode}

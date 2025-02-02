@@ -16,10 +16,9 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer"
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import TextareaAutosize from "react-textarea-autosize";
 import { captureScreenshot } from "@/utils/captureScreenshot";
+import BankerButton from "./BankerButton";
 
 interface InputPromptProps {
   homepageRef?: React.RefObject<HTMLDivElement | null>;
@@ -32,6 +31,7 @@ const formSchema = z.object({
 
 const InputPrompt: React.FC<InputPromptProps> = ({ homepageRef, handleSubmit }) => {
   const [open, setOpen] = useState(false); 
+  const [disabled, setDisabled] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -49,28 +49,22 @@ const InputPrompt: React.FC<InputPromptProps> = ({ homepageRef, handleSubmit }) 
   };
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    setDisabled(true);
     if (homepageRef && homepageRef.current) {
       let screenshot = await captureScreenshot(homepageRef.current);
       handleSubmit(values.prompt, screenshot);
     }
     form.reset(); 
     setOpen(false); 
+    setDisabled(false);
   };
 
   return (
     <div className="w-full h-full" data-html2canvas-ignore="true">
       <div className="fixed bottom-0 left-0 right-0 w-full max-w-2xl mx-auto px-4 mb-4 flex justify-center items-center">
         <Drawer open={open} onOpenChange={setOpen}> 
-          <DrawerTrigger className="w-full">
-            {/* <Input
-              placeholder="Ask Claude..."
-              className="border-solid resize-none border-2 border-blue-900 rounded-lg w-full p-5 mb-6"
-              onClick={() => setOpen(true)} 
-            /> */}
-            <div className="grid w-full gap-1.5 mb-10">
-              <Label htmlFor="message" className="font-semibold flex ">Your message to Claude</Label>
-              <Textarea className="bg-slate-100 hover:border-black border-solid hover:border-2 placeholder:text-slate-600" placeholder="Tell Claude what you would like." id="message" />
-            </div>
+          <DrawerTrigger className="w-full outline-none">
+            <BankerButton />
           </DrawerTrigger>
           <DrawerContent className="max-w-[60%] mx-auto left-0 right-0 flex items-center text-center">
             <DrawerHeader>
@@ -85,12 +79,13 @@ const InputPrompt: React.FC<InputPromptProps> = ({ homepageRef, handleSubmit }) 
                   render={({ field }) => (
                     <FormItem>
                       <TextareaAutosize
-                        placeholder="Ask Claude..." {...field}
+                        placeholder="Ask WebSynth.ai..." {...field}
                         className="border-solid resize-none border-2 border-blue-900 rounded-md w-full p-2"
                         onKeyDown={handleKeyDown}
                         minRows={2}
                         maxRows={6}
                         autoFocus={true}
+                        disabled={disabled}
                       />
                     </FormItem>
                   )}

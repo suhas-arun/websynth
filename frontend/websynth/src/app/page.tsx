@@ -15,7 +15,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
-import { ScrollText } from "lucide-react";
+import { ScrollText, Terminal } from "lucide-react";
 import Convert from "ansi-to-html";
 
 export default function Home() {
@@ -158,7 +158,6 @@ export default function Home() {
           components={components}
           setComponents={setComponents}
           loadFsAndRefresh={loadFsAndRefresh}
-          installAndCompile={installAndCompile}
           currentUrl={currentUrl}
         />
         <WebsitePreview devMode={devMode} iframeRef={iframeRef} setCurrentUrl={setCurrentUrl} />
@@ -180,7 +179,8 @@ export default function Home() {
           {/* Log Popup Dialogue */}
           <PopoverContent className="relative right-5 bottom-0 border-none p-0 max-w-150 bg-gray-800">
             <div className="p-4 rounded-lg">
-              <h3 className="text-md text-white font-semibold pb-2">Logs</h3>
+              <h3 className="text-md text-white font-semibold pb-2 flex items-center gap-2">
+                <Terminal size={24} />Logs</h3>
               <div className="overflow-y-auto max-h-80 bg-black p-2 rounded-md">
                 {logs.map((log, index) => (
                   <div key={index} className="text-sm text-white mb-2 whitespace-pre-wrap"

@@ -76,7 +76,7 @@ def make_change_to_file(file_path: str, changes: str) -> str:
 
 
     if tsx_code is None:
-        return "No TSX code found in the response. Please try again."
+        return "No TSX code found in the response. Please try again. Programmer responded: " + code.generations[0][0].text
     
     ## Check & install missing components
     pattern = r'import\s+(?:\{[\s\w,]*\}|\w+)\s+from\s+["\']@/components/([\w/]+)["\'];?'

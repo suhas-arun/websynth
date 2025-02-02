@@ -8,9 +8,11 @@ import { Menu, X, Code, Eye } from "lucide-react";
 interface DevSidebarProps {
   devMode: boolean;
   toggleDevMode: (devMode: boolean) => void;
+  loadFsAndRefresh: () => void;
+  installAndCompile: () => void;
 }
 
-const DevSidebar: React.FC<DevSidebarProps> = ({ devMode, toggleDevMode }) => {
+const DevSidebar: React.FC<DevSidebarProps> = ({ devMode, toggleDevMode, loadFsAndRefresh, installAndCompile }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -42,8 +44,14 @@ const DevSidebar: React.FC<DevSidebarProps> = ({ devMode, toggleDevMode }) => {
 
         {devMode && (
           <div className="space-y-2">
-            <Button className="w-full">Dev Tool 1</Button>
-            <Button className="w-full">Dev Tool 2</Button>
+            <Button
+              onClick={loadFsAndRefresh}
+              className="w-full"
+            >Upload Local Files</Button>
+            <Button
+              onClick={installAndCompile}
+              className="w-full"
+            >Manually Compile</Button>
           </div>
         )}
       </div>

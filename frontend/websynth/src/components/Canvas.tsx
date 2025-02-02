@@ -11,9 +11,12 @@ interface CanvasProps {
   setDevMode: (devMode: boolean) => void;
   components: Component[];
   setComponents: (components: Component[]) => void;
+  loadFsAndRefresh: () => void;
+  installAndCompile: () => void;
 }
 
-const Canvas: React.FC<CanvasProps> = ({ devMode, setDevMode, components, setComponents }) => {
+const Canvas: React.FC<CanvasProps> = (
+  { devMode, setDevMode, components, setComponents, loadFsAndRefresh, installAndCompile }) => {
   // Selection state
   const [startPos, setStartPos] = useState<{ x: number; y: number } | null>(null);
   const [currentPos, setCurrentPos] = useState<{ x: number; y: number } | null>(null);
@@ -168,7 +171,12 @@ const Canvas: React.FC<CanvasProps> = ({ devMode, setDevMode, components, setCom
 
   return (
     <div>
-      <DevSidebar devMode={devMode} toggleDevMode={toggleDevMode} />
+      <DevSidebar
+        devMode={devMode}
+        toggleDevMode={toggleDevMode}
+        loadFsAndRefresh={loadFsAndRefresh}
+        installAndCompile={installAndCompile}
+      />
       <div
         className={`w-full h-screen bg-opacity-0 pointer-events-${devMode ? "auto" : "none"}`}
         onClick={handleClick} // Use click event to toggle selection

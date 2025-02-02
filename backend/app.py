@@ -1,7 +1,12 @@
+import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from agentic.graph import AgenticApp
 from utils.input import Data, input_to_prompt
+
+ROOT = ""
+COMPONENTS = ""
+MAIN = ""
 
 app = FastAPI()
 agent = AgenticApp()
@@ -15,8 +20,15 @@ app.add_middleware(
 )
 
 @app.post("/submit/")
-async def root(data: Data):
-    agent.run(data)
+async def root(data: Data, root: str):
+    global ROOT, MAIN, COMPONENTS
+
+    ROOT = root
+    MAIN = os.path.join(root, "/src/app")
+    COMPONENTS = os.path.join(root, "/src/components")
+
+    # Run the Agentic app
+    agent.run(data, root)
     return {"message": "Success"}
 
 @app.get("/")

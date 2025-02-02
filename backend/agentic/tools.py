@@ -5,10 +5,11 @@ import subprocess
 import base64
 import anthropic
 import re
+from app import ROOT, MAIN, COMPONENTS
 
-main_dir = '../virtual-frontend/src/app/'
-main_dir_components = '../virtual-frontend/src/components/'
-base_dir = '../virtual-frontend'
+main_dir = MAIN
+main_dir_components = COMPONENTS
+base_dir = ROOT
 
 # @tool
 # def read_file(file_path: str) -> str:

@@ -34,6 +34,26 @@ const mountDirAt = async (fsTree: FileSystemTree, mountPoint: string, webContain
 
 const runNpmAt = async (webContainer: WebContainer, mountPoint: string): Promise<boolean> => {
   try {
+		const script = `
+			const notifyParent = () => {
+				window.parent.postMessage({ type: "page-change", url: window.location.pathname }, "*");
+			};
+
+			// Detects when user navigates via history (back/forward buttons)
+			window.addEventListener("popstate", notifyParent);
+
+			// Detects when SPA navigation happens (Next.js, React Router, etc.)
+			["pushState", "replaceState"].forEach((eventName) => {
+				const original = history[eventName];
+				history[eventName] = function (...args) {
+					original.apply(this, args);
+					notifyParent();
+				};
+			});
+		`;
+
+		await webContainer.setPreviewScript(script);
+
     // const npmProcess = await webContainer.spawn('sh', ['-c', 'cd', mountPoint, '&& npm run dev && cd ..']);
 		const npmProcess = await webContainer.spawn('sh', ['-c', `npm --prefix ${mountPoint} run dev`]);
 

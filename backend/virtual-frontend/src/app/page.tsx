@@ -1,47 +1,48 @@
 'use client';
 import React from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
 export default function Home() {
   return (
-    <div className="relative w-full h-screen flex flex-col items-center">
-      <div 
-        className="absolute flex items-center justify-center text-center"
+    <div className="relative w-full h-screen flex items-center justify-center">
+      <Card 
+        className="absolute bg-white shadow-lg rounded-lg hover:scale-105 transition-transform duration-300" 
         style={{ 
-          left: '250px', 
-          top: '134px', 
-          height: '82px', 
-          width: '1053px' 
+          left: '246px', 
+          top: '230px', 
+          height: '303px', 
+          width: '394px' 
         }}
       >
-        <h1 className="text-5xl font-bold text-gray-800">
-          Welcome to Hackathon Central
-        </h1>
-      </div>
+        <CardHeader>
+          <CardTitle className="text-primary">Adorable Cats</CardTitle>
+          <CardDescription>Discover the world of cute and cuddly feline friends</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <p className="mb-4">Learn about different cat breeds, their personalities, and care tips.</p>
+          <Button className="w-full hover:bg-primary/90">Learn More</Button>
+        </CardContent>
+      </Card>
 
-      {/* Text Body Component */}
-      <div 
-        className="absolute flex items-center justify-center p-6 bg-white rounded-lg shadow-md"
+      <Card 
+        className="absolute bg-white shadow-lg rounded-lg hover:scale-105 transition-transform duration-300" 
         style={{ 
-          left: '274px', 
-          top: '276px', 
-          height: '423px', 
-          width: '1015px' 
+          left: '769px', 
+          top: '234px', 
+          height: '297px', 
+          width: '416px' 
         }}
       >
-        <p className="text-lg text-gray-700 text-left">
-          Hackathons are intensive, collaborative events where innovators, 
-          developers, and creators come together to solve complex challenges 
-          and build groundbreaking solutions. Whether you're a seasoned 
-          programmer or a passionate beginner, hackathons offer a unique 
-          platform to learn, innovate, and transform ideas into reality.
-
-          Our community provides a supportive environment where creativity 
-          meets technology. Join us to network with like-minded individuals, 
-          push your technical boundaries, and potentially create the next 
-          big technological breakthrough.
-        </p>
-      </div>
+        <CardHeader>
+          <CardTitle className="text-primary">Lovable Dogs</CardTitle>
+          <CardDescription>Explore the wonderful world of canine companions</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <p className="mb-4">Discover various dog breeds, training techniques, and pet care.</p>
+          <Button className="w-full hover:bg-primary/90">Learn More</Button>
+        </CardContent>
+      </Card>
     </div>
   );
 }

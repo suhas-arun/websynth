@@ -6,9 +6,12 @@ import base64
 import anthropic
 import re
 
-main_dir = '../virtual-frontend/src/app/'
-main_dir_components = '../virtual-frontend/src/components/'
-base_dir = '../virtual-frontend'
+main_dir = '/Users/timmap/Desktop/Work/ICHACK25/websynth/demos/test-app/src/app/'
+main_dir_components = '/Users/timmap/Desktop/Work/ICHACK25/websynth/demos/test-app/src/components/'
+base_dir = '/Users/timmap/Desktop/Work/ICHACK25/websynth/demos/test-app'
+
+
+# print ls command of the current director
 
 # @tool
 # def read_file(file_path: str) -> str:
@@ -67,7 +70,7 @@ def make_change_to_file(file_path: str, changes: str) -> str:
     
     programmer = ClaudeClient()
     prompt = f"""You are a programmer tasked with making changes to the following NextJS code. 
-    You can only use shadcn components, nextjs and react. DO NOT use any other external libraries.
+    You can only use shadcn components, nextjs, framer-motion and react. DO NOT use any other external libraries.
     ONLY return code within ```tsx``` delimiters.
     Only use the default tailwind colours, bg-primary, text-primary etc.
         Code:\n{current_code}

@@ -5,36 +5,37 @@ from agentic.tools import list_dir, make_change_to_file, create_file
 from utils.input import Data, input_to_prompt
 
 class AgenticWorkflow:
-  def __init__(self, tools):
-      self.agent = ClaudeClient()
-      self.tools = tools
-      self.model_with_tools = self.agent.client.bind_tools(tools)
-      self.tool_node = WebSynthToolNode(self.tools)
+    def __init__(self, tools):
+        self.agent = ClaudeClient()
+        self.tools = tools
+        self.model_with_tools = self.agent.client.bind_tools(tools)
+        self.tool_node = WebSynthToolNode(self.tools)
 
-  def should_continue(self, state: MessagesState):
-      messages = state["messages"]
-      last_message = messages[-1]
-      if last_message.tool_calls:
-          return "tools"
-      return END
 
-  def call_model(self, state: MessagesState):
-      messages = state["messages"]
-      response = self.model_with_tools.invoke(messages)
-      return {"messages": [response]}
+    def should_continue(self, state: MessagesState):
+        messages = state["messages"]
+        last_message = messages[-1]
+        if last_message.tool_calls:
+            return "tools"
+        return END
 
-  def compile_graph(self):
-    workflow = StateGraph(MessagesState)
+    def call_model(self, state: MessagesState):
+        messages = state["messages"]
+        response = self.model_with_tools.invoke(messages)
+        return {"messages": [response]}
 
-    workflow.add_node("agent", self.call_model)
-    workflow.add_node("tools", self.tool_node)
+    def compile_graph(self):
+        workflow = StateGraph(MessagesState)
 
-    workflow.add_edge(START, "agent")
-    workflow.add_conditional_edges("agent", self.should_continue, ["tools", END])
-    workflow.add_edge("tools", "agent")
+        workflow.add_node("agent", self.call_model)
+        workflow.add_node("tools", self.tool_node)
 
-    app = workflow.compile()
-    return app
+        workflow.add_edge(START, "agent")
+        workflow.add_conditional_edges("agent", self.should_continue, ["tools", END])
+        workflow.add_edge("tools", "agent")
+
+        app = workflow.compile()
+        return app
   
 class AgenticApp:
     def __init__(self):

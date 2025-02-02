@@ -1,6 +1,8 @@
+'use client';
 import "./globals.css";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { ThemeProvider } from "@/components/providers/theme";
 
 export default function RootLayout({
   children,
@@ -8,26 +10,22 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className="flex flex-col min-h-screen">
-        <nav className="w-full bg-background border-b">
-          <div className="container mx-auto px-4 py-4 flex justify-center space-x-4">
-            <Button variant="outline" asChild>
-              <Link href="/">Home</Link>
-            </Button>
-            <Button variant="outline" asChild>
-              <Link href="/about">About</Link>
-            </Button>
-            <Button variant="outline" asChild>
-              <Link href="/events">Events</Link>
-            </Button>
-          </div>
-        </nav>
-        <main className="flex-grow container mx-auto px-4">
-          <div className="flex flex-col items-center justify-center w-full h-full gap-4">
-            {children}
-          </div>
-        </main>
+    <html lang="en" suppressHydrationWarning>
+      <body>
+        <ThemeProvider attribute="class">
+          <nav className="flex justify-center items-center space-x-4 p-4 bg-primary text-primary-foreground">
+            <Link href="/" className="hover:underline">
+              <Button variant="ghost">Home</Button>
+            </Link>
+            <Link href="/cats" className="hover:underline">
+              <Button variant="ghost">Cats</Button>
+            </Link>
+            <Link href="/dogs" className="hover:underline">
+              <Button variant="ghost">Dogs</Button>
+            </Link>
+          </nav>
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   );

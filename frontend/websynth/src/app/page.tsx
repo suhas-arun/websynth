@@ -150,7 +150,7 @@ export default function Home() {
       </div>
       <InputPrompt homepageRef={pageRef} handleSubmit={handleSubmit} />
 
-      <div className="absolute bottom-5 left-5">
+      <div className="absolute bottom-5 right-5">
         {/* Floating log icon */}
         <Popover>
           <PopoverTrigger>
@@ -163,7 +163,7 @@ export default function Home() {
           </PopoverTrigger>
 
           {/* Log Popup Dialogue */}
-          <PopoverContent className="relative left-5 bottom-0 border-none p-0 max-w-150 bg-gray-800">
+          <PopoverContent className="relative right-5 bottom-0 border-none p-0 max-w-150 bg-gray-800">
             <div className="p-4 rounded-lg">
               <h3 className="text-md text-white font-semibold pb-2">Logs</h3>
               <div className="overflow-y-auto max-h-80 bg-black p-2 rounded-md">

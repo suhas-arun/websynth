@@ -1,11 +1,8 @@
-import os
-os.chdir('../')
 from langgraph.graph import StateGraph, MessagesState, START, END
 from agentic.utils import ClaudeClient
 from agentic.CustomToolNode import WebSynthToolNode
 from agentic.tools import list_dir, make_change_to_file, create_file
 from utils.input import Data, input_to_prompt
-os.chdir('backend/agentic')
 
 class AgenticWorkflow:
   def __init__(self, tools):

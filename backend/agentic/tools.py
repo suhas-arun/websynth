@@ -1,6 +1,6 @@
 from langchain_core.tools import tool
 import os
-from utils import ClaudeClient
+from utils import ClaudeClient, ClaudeClientChecker
 import subprocess
 
 main_dir = '../virtual-frontend/src/app/'
@@ -61,27 +61,51 @@ def make_change_to_file(file_path: str, changes: str) -> str:
     with open(os.path.join(main_dir, file_path), "r") as f:
         current_code = f.read() 
     
-    programmer = ClaudeClient()
-    prompt = f"""You are a programmer tasked with making changes to the following NextJS code. 
-    You can only use shadcn components, nextjs and react. DO NOT use any other external libraries.
-    ONLY return code within ```tsx``` delimiters.
-        Code:\n{current_code}
-        Changes:\n{changes}        
-    """ 
-    code = programmer.client.generate({prompt})
-    
-    tsx_code = programmer.extract_tsx_code(code.generations[0][0].text)
-    
+    count = 0
+    code_analysis = None
 
-    if tsx_code is None:
-        return "No TSX code found in the response. Please try again."
-    
+    while True:
+        programmer = ClaudeClient()
+        if code_analysis:
+            prompt = f""" You are a programmer tasked with making changes to the following NextJS code and fixing the errors outlined below.
+            You can only use shadcn components, nextjs and react. DO NOT use any other external libraries.
+            ONLY return code within ```tsx``` delimiters.
+                Code:\n{current_code}
+                Errors:\n{code_analysis}        
+            """
+        else:
+            prompt = f"""You are a programmer tasked with making changes to the following NextJS code. 
+            You can only use shadcn components, nextjs and react. DO NOT use any other external libraries.
+            ONLY return code within ```tsx``` delimiters.
+                Code:\n{current_code}
+                Changes:\n{changes}        
+            """
+        code = programmer.client.generate({prompt})
+
+        tsx_code = programmer.extract_tsx_code(code.generations[0][0].text)
+
+
+        if tsx_code is None:
+            return "No TSX code found in the response. Please try again."
+
+        # Add checker stuff here
+        code_reviewer = ClaudeClientChecker()
+
+        code_analysis = code_reviewer.code_check(tsx_code)
+
+        print(code_analysis)
+
+        if code_analysis == "" or count == 2:
+            break
+
+        count += 1
+
     programmer.rewrite_code(tsx_code, str(os.path.join(main_dir, file_path)))
-    
+
     return f"The changes to the code were successfully made to the file: {file_path}"
 
 def check_install(component:str) -> None:
-    """Tool to check if a component has already been dowloaded, and if not download it"""
+    """Tool to check if a component has already been downloaded, and if not download it"""
     component_path = os.path.join(main_dir, f"{component}.tsx")
 
     if os.path.exists(component_path):
@@ -101,3 +125,38 @@ def check_install(component:str) -> None:
         print(f"{component} installed successfully.")
     except subprocess.CalledProcessError as error:
         print(f"Failed to install {component}: {error}")
+
+
+
+
+
+# @tool
+# def check_code(code_str: str) -> bool:
+#     """Tool to check for syntax and type errors in generated typescript code, represented as a string."""
+#     print("Validating generated code...")
+
+# @tool
+# def check_install(component:str) -> None:
+#     """Tool to check if a component has already been dowloaded, and if not download it"""
+#     component_path = os.path.join(main_dir, f"{component}.tsx")
+
+#     if os.path.exists(component_path):
+#         print(f"{component} is already installed.")
+#         return
+#     else:
+#         print(f"Installing {component}...")
+#     try:
+#         command = f"echo 'Use --force' | npx shadcn@latest add {component}"
+#         subprocess.run(
+#             command,
+#             shell=True,
+#             check=True,
+#             text=True,
+#             cwd=base_dir
+#         )
+#         print(f"{component} installed successfully.")
+#     except subprocess.CalledProcessError as error:
+#         print(f"Failed to install {component}: {error}")
+
+# @tool
+# def check_code()

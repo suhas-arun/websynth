@@ -19,7 +19,7 @@ if __name__ == "__main__":
     app.invoke({
         "messages": [
             {"role": "system", "content": PM_PROMPT},
-            {"role": "user", "content": "Create a button in the right of the navbar that allows switching to dark mode."},
+            {"role": "user", "content": "Add a button to the top left of the page"},
     ]}, debug=True)
      
     #  Add a 'programmer' agent who takes the output from the Project Manager and updates the relevant files.

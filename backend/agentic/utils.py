@@ -7,7 +7,6 @@ import tempfile
 import utils
 import os
 
-
 class ClaudeClient:
     def __init__(self, model="claude-3-5-haiku-latest"):
         load_dotenv()
@@ -34,16 +33,7 @@ class ClaudeClient:
 
         return extracted_typescript
 
-    def repeated_code_check(self, code: str, max_repetitions: int = 3):
-        for _ in range(max_repetitions):
-            syntax_check = self.__syntax_check_typescript(code)
-            new_code = syntax_check[1]
-            if syntax_check[0] == False:
-                new_code = self.__extract_tsx_code(new_code)
-            if self.__type_check_typescript(new_code):
-                return new_code
-            code = self.extract_tsx_code(new_code)
-        return code
+
 
     def rewrite_code(
         self, code: str, pathname: str = "backend/virtual-frontend/src/app/page.tsx"
@@ -60,36 +50,59 @@ class ClaudeClient:
         """
         match = re.search(r"```tsx\n(.*?)\n```", text, re.DOTALL)
         return match.group(1) if match else None
+    
+
+class ClaudeClientChecker:
+    def __init__(self, model="claude-3-5-haiku-latest"):
+        load_dotenv()
+        if "ANTHROPIC_API_KEY" not in os.environ:
+            print("no API key!")
+        self.client = ChatAnthropic(model_name=model)
+    
+    def code_check(self, code: str) -> str:
+        syntax_check = self.__syntax_check_typescript(code)
+        response = ""
+        if syntax_check[0] == False:
+            response += syntax_check[1]
+        type_check = self.__type_check_typescript(code)
+        if type_check[0] == False:
+            response += "\n" + type_check[1]
+        # if response == "":
+        #     response = "The typescript code has no errors and can be displayed to the user."
+        return response
 
     def __syntax_check_typescript(self, code_str: str) -> (bool, str):
         prompt = """You are an expert in TypeScript and React, specializing in Next.js. Your task is to evaluate the syntax of a given page.tsx file. The code is below, delimited by ```.
         
         Rules:
         If the syntax is valid, respond with the word "YES" only, and nothing else.
-        If the syntax is invalid, return a corrected version of the code with only the necessary changes to fix the syntax errors. Do not modify anything else.
+        If the syntax is invalid, return a reasoned explanation of where it is invalid and why.
 
         Input:
         A string containing TypeScript and React code only
 
         Output (only if there are syntax errors):
-        A new extract of the corrected page.tsx file with the relevant changes. Ensure the output contains only the corrected code, delimited by ```, and nothing else. Do not add any explanations or comments."""
+        An explanation of possible reasons why the syntax is invalid, as where as the locations of errors."""
         output = self.client.generate({f"""{prompt}\n ```{code_str}```"""})
+        output = output.generations[0][0].text
+
+        print("SYNTAX CHECK OUTPUT: ", output)
 
         if output == "YES":
-            return (True, code_str)
+            return (True, output)
         else:
             return (False, output)
 
         return output
 
-    def __type_check_typescript(self, ts_code: str) -> bool:
+    def __type_check_typescript(self, ts_code: str) -> (bool, str):
         with tempfile.NamedTemporaryFile(suffix=".ts", delete=False) as temp_file:
             temp_file.write(ts_code.encode("utf-8"))
             temp_file_path = temp_file.name
 
         try:
             result = subprocess.run(
-                ["npx", "tsc", "--noEmit", "--strict", temp_file_path],
+                ["npm install typescript", "npx", "tsc", "--noEmit", "--strict", temp_file_path],
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 text=True,
@@ -98,9 +111,9 @@ class ClaudeClient:
             error_output = error_output.strip()
 
             if result.returncode != 0 or error_output:
-                return False
+                return (False, "There was a type error in the code. Here is more detail:" + error_output)
             else:
-                return True
+                return (True, "")
         finally:
             os.remove(temp_file_path)
 

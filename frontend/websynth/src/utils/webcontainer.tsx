@@ -94,9 +94,21 @@ const targetRewriteInContainer = async (webContainer: WebContainer, mountPoint: 
 				console.log(`Deleting file: ${fullPath}`);
 				await webContainer.fs.rm(fullPath);
       } else {
-        console.log(`Updating: ${fullPath}`);
-        // Write new or updated file content
-        await webContainer.fs.writeFile(fullPath, content);
+				// Ensure the parent directory exists before writing the file
+				const parentDir = fullPath.substring(0, fullPath.lastIndexOf("/"));
+
+				if (parentDir && parentDir !== mountPoint) {
+					try {
+						await webContainer.fs.mkdir(parentDir, { recursive: true });
+						console.log(`Created parent directory: ${parentDir}`);
+					} catch (mkdirError) {
+						console.log(`Parent directory may already exist: ${parentDir}`);
+					}
+				}
+
+				// Write new or updated file content
+				console.log(`Updating file: ${fullPath}`);
+				await webContainer.fs.writeFile(fullPath, content);
       }
     }
 

@@ -40,8 +40,14 @@ const WebsitePreview = () => {
       const diffs = compareFsTrees(fileSystemTree, newTree);
       console.log("Differences:", diffs);
 
+      if (diffs.size === 0) {
+        console.log("No differences, aborting..");
+        return;
+      }
+
       console.log("Updating FileSystem...");
       await targetRewriteInContainer(webcontainerInstance.current!, ROOT_DIR, diffs);
+      setFileSystemTree(newTree);
       console.log("FileSystem updated");
 
       // Check if package.json has changed

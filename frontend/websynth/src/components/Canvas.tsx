@@ -4,13 +4,16 @@ import Sidesheet from "./Sidesheet";
 import ComponentTag from "./ComponentTag";
 import { Switch } from "./ui/switch";
 import { Label } from "./ui/label";
+import { Component } from "@/types/component";
 
 interface CanvasProps {
   devMode: boolean;
   setDevMode: (devMode: boolean) => void;
+  components: Component[];
+  setComponents: (components: Component[]) => void;    
 }
 
-const Canvas: React.FC<CanvasProps> = ({ devMode, setDevMode }) => {
+const Canvas: React.FC<CanvasProps> = ({ devMode, setDevMode, components, setComponents }) => {
   // Selection state
   const [startPos, setStartPos] = useState<{ x: number; y: number } | null>(null);
   const [currentPos, setCurrentPos] = useState<{ x: number; y: number } | null>(null);
@@ -20,11 +23,6 @@ const Canvas: React.FC<CanvasProps> = ({ devMode, setDevMode }) => {
 
   // Sidesheet state
   const [sidesheetOpen, setSidesheetOpen] = useState(false);
-
-  // Stores components that have already been selected
-  const [components, setComponents] = useState<
-    { x: number, y: number, width: number, height: number, name: string, description: string }[]
-  >([]);
 
   // Currently selected component
   const [selectedComponent, setSelectedComponent] = useState<{ index: number, name: string, description: string } | null>(null);

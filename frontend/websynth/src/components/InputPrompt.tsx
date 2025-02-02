@@ -22,13 +22,14 @@ import { captureScreenshot } from "@/utils/captureScreenshot";
 
 interface InputPromptProps {
   homepageRef?: React.RefObject<HTMLDivElement | null>;
+  handleSubmit: (prompt: string, screenshot: string) => void;
 }
 
 const formSchema = z.object({
   prompt: z.string(),
 })
 
-const InputPrompt: React.FC<InputPromptProps> = ({ homepageRef }) => {
+const InputPrompt: React.FC<InputPromptProps> = ({ homepageRef, handleSubmit }) => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -44,9 +45,10 @@ const InputPrompt: React.FC<InputPromptProps> = ({ homepageRef }) => {
     }
   }
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
     if (homepageRef && homepageRef.current) {
-      captureScreenshot(homepageRef.current);
+      let screenshot = await captureScreenshot(homepageRef.current);
+      handleSubmit(values.prompt, screenshot);
     }
   }
 

@@ -14,9 +14,22 @@ interface WebsitePreviewProps {
 const WebsitePreview: React.FC<WebsitePreviewProps> = ({ devMode }) => {
   const [fileHandle, setFileHandle] = useState<FileSystemDirectoryHandle | null>(null);
   const [fileSystemTree, setFileSystemTree] = useState<FileSystemTree | null>(null);
+  const [currentUrl, setCurrentUrl] = useState<string>('/');
 
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const webcontainerInstance = useRef<WebContainer>(null);
+
+  // Minimal Event Listener to track the URL inside WebContainer
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      if (event.data.type === "page-change") {
+        setCurrentUrl(event.data.url);
+      }
+    };
+
+    window.addEventListener("message", handleMessage);
+    return () => window.removeEventListener("message", handleMessage);
+  }, []);
 
   // Initialise WebContainer instance
   useEffect(() => {

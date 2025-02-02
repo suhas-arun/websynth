@@ -20,36 +20,14 @@ const deleteMount = async (mountPoint: string, webContainer: WebContainer): Prom
 // mountDir -- Mount a directory into WebContainer at MOUNT
 const mountDirAt = async (fsTree: FileSystemTree, mountPoint: string, webContainer: WebContainer): Promise<boolean> => {
   try {
-    if (webContainer) {
+		// Delete existing mount if it exists and mount new files
+		await deleteMount(mountPoint, webContainer);
+		await webContainer.fs.mkdir(mountPoint);
+		await webContainer.mount(fsTree, { mountPoint: mountPoint });
 
-      // Delete existing mount if it exists and mount new files
-      await deleteMount(mountPoint, webContainer);
-      await webContainer.fs.mkdir(mountPoint);
-      await webContainer.mount(fsTree, { mountPoint: mountPoint });
-
-      return true;
-    } else {
-      throw new Error("WebContainer instance not found.");
-    }
+		return true;
   } catch (error) {
     console.error("Error mounting directory:", error);
-    return false;
-  }
-}
-
-const killNpm = async (webContainer: WebContainer): Promise<boolean> => {
-  try {
-    const killProcess = await webContainer.spawn('pkill', ['-f', 'npm']);
-    killProcess.output.pipeTo(new WritableStream({
-      write(data) {
-        console.log(data);
-      }
-    }));
-
-    console.log("Killed npm process");
-    return true;
-  } catch (error) {
-    console.log("Failed to kill npm process:", error);
     return false;
   }
 }
@@ -102,25 +80,31 @@ const runNpmInstallAt = async (webContainer: WebContainer, mountPoint: string): 
   }
 }
 
+const targetRewriteInContainer = async (webContainer: WebContainer, mountPoint: string,
+	treeDiffs: Map<string, string>
+): Promise<boolean> => {
+  try {
+    for (const [filePath, content] of treeDiffs.entries()) {
+      const fullPath = `${mountPoint}/${filePath}`; // Ensure correct path
 
-/* IDEA: Have app/ and app-fallback/ in the container and have both running at any one time.
-When the user dir is updated:
-    swap url to app-fallback/
-    kill npm in app/
-    delete app/
-    mount new files to app/
-    startup npm in app/
-    swap url to app/
-    Ask user for confirmation to update
+      if (content === "DELETE DIR") {
+        console.log(`Deleting directory: ${fullPath}`);
+				await webContainer.fs.rm(fullPath, { recursive: true });
+			} else if (content === "DELETE FILE") {
+				console.log(`Deleting file: ${fullPath}`);
+				await webContainer.fs.rm(fullPath);
+      } else {
+        console.log(`Updating: ${fullPath}`);
+        // Write new or updated file content
+        await webContainer.fs.writeFile(fullPath, content);
+      }
+    }
 
-    If user confirms:
-        update app-fallback/ as well
+    return true; // Successfully updated the filesystem
+  } catch (error) {
+    console.error("Error updating WebContainer filesystem:", error);
+    return false;
+  }
+};
 
-    If user denies:
-        Post request to backend to revert root files
-        Move to /app-fallback
-
-
-*/
-
-export { mountDirAt, killNpm, runNpmAt, runNpmInstallAt };
+export { mountDirAt, runNpmAt, runNpmInstallAt, targetRewriteInContainer};

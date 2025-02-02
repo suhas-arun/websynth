@@ -3,8 +3,8 @@
 import { useRef, useEffect, useState} from "react";
 import { FileSystemTree, WebContainer} from "@webcontainer/api";
 import { Button } from "@/components/ui/button";
-import { recurseParseDirToFsTree, selectRootDir } from "@/utils/filesystem";
-import { mountDirAt, runNpmAt, runNpmInstallAt } from "@/utils/webcontainer";
+import { compareFsTrees, hasPackageJsonChanges, recurseParseDirToFsTree, selectRootDir } from "@/utils/filesystem";
+import { mountDirAt, runNpmAt, runNpmInstallAt, targetRewriteInContainer } from "@/utils/webcontainer";
 import { ROOT_DIR } from "@/app/constants/globals";
 
 const WebsitePreview = () => {
@@ -26,45 +26,71 @@ const WebsitePreview = () => {
       initWebContainer();
     }, []); // Run only once when component mounts
 
-  const loadPreview = async () => {
-    const rootDir = await selectRootDir();
-    setFileHandle(rootDir);
-    const fsTree = await recurseParseDirToFsTree(rootDir);
-    setFileSystemTree(fsTree);
+  // Handles the cases for: initial loading, reloading changed files, 
+  // and handling package.json changes
+  // Will attempt to hot-reload but may re-compile if necessary
+  const loadFsAndRefresh = async () => {
+    var compile = false;
 
-    if (webcontainerInstance.current) {
-      await mountDirAt(fsTree, ROOT_DIR, webcontainerInstance.current);
+    if (fileSystemTree && fileHandle) {
+      console.log("File system tree and file handle found. Comparing differences...");
+
+      // Compare new tree with old tree
+      const newTree = await recurseParseDirToFsTree(fileHandle);
+      const diffs = compareFsTrees(fileSystemTree, newTree);
+      console.log("Differences:", diffs);
+
+      console.log("Updating FileSystem...");
+      await targetRewriteInContainer(webcontainerInstance.current!, ROOT_DIR, diffs);
+      console.log("FileSystem updated");
+
+      // Check if package.json has changed
+      const containsPackageInstall = hasPackageJsonChanges(diffs);
+
+      if (containsPackageInstall) {
+        console.log("Package.json has changed. Must re-compile.");
+        compile = true;
+      } 
+    } else {
+      console.log("No file system tree found. Please select a directory.");
+
+      // Select root directory
+      const rootDir = await selectRootDir();
+      setFileHandle(rootDir);
+      const fsTree = await recurseParseDirToFsTree(rootDir);
+      setFileSystemTree(fsTree);
+
+      console.log("Mounting directory...");
+      await mountDirAt(fsTree, ROOT_DIR, webcontainerInstance.current!);
+      compile = true;
+    }
+    
+    // Recompile if necessary
+    if (compile) {
+      console.log("Compiling...")
+      await installAndCompile();
     }
   };
 
-  const compile = async () => {
-    if (webcontainerInstance.current) {
-      const installed = await runNpmInstallAt(webcontainerInstance.current, ROOT_DIR);
-      console.log("Installed:", installed);
-      const compiled = await runNpmAt(webcontainerInstance.current, ROOT_DIR);
-      console.log("Compiled:", compiled);
+  const installAndCompile = async () => {
+    const installed = await runNpmInstallAt(webcontainerInstance.current!, ROOT_DIR);
+    console.log("Installed:", installed);
+    const compiled = await runNpmAt(webcontainerInstance.current!, ROOT_DIR);
+    console.log("Compiled:", compiled);
 
-      if (iframeRef.current) {
-        console.log("iframe exists...")
-      } else {
-        console.log("iframe does not exist...")
-      }
-
-      webcontainerInstance.current.on('server-ready', (port, url) => {
-        iframeRef.current!.src = url;
-        console.log("iframe exists")
-      })
-    }
+    webcontainerInstance.current!.on('server-ready', (port, url) => {
+      iframeRef.current!.src = url;
+    })
   };
 
   return (
     <div className="absolute h-full w-full top-0 left-0 z-0 pointer-events-none">
       <Button
-        onClick={loadPreview}
+        onClick={loadFsAndRefresh}
         className="absolute top-4 right-4 pointer-events-auto"
       >Upload folder</Button>
       <Button
-        onClick={compile}
+        onClick={installAndCompile}
         className="absolute top-16 right-4 pointer-events-auto"
       >Compile</Button>
       <iframe

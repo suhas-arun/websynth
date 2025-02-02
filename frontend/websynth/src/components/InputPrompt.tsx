@@ -79,7 +79,7 @@ const InputPrompt: React.FC<InputPromptProps> = ({ homepageRef, handleSubmit }) 
                   render={({ field }) => (
                     <FormItem>
                       <TextareaAutosize
-                        placeholder="Ask WebSynth.ai..." {...field}
+                        placeholder="Build with WebSynth.ai..." {...field}
                         className="border-solid resize-none border-2 border-blue-900 rounded-md w-full p-2"
                         onKeyDown={handleKeyDown}
                         minRows={2}

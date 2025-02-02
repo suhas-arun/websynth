@@ -5,10 +5,12 @@ import ComponentTag from "./ComponentTag";
 import { Switch } from "./ui/switch";
 import { Label } from "./ui/label";
 
-const Canvas = () => {
-  // Dev mode => user can select components. Otherwise, they interact directly with the page
-  const [devMode, setDevMode] = useState(false);
+interface CanvasProps {
+  devMode: boolean;
+  setDevMode: (devMode: boolean) => void;
+}
 
+const Canvas: React.FC<CanvasProps> = ({ devMode, setDevMode }) => {
   // Selection state
   const [startPos, setStartPos] = useState<{ x: number; y: number } | null>(null);
   const [currentPos, setCurrentPos] = useState<{ x: number; y: number } | null>(null);
@@ -119,6 +121,7 @@ const Canvas = () => {
       height: rectangle.height,
       border: "2px solid black",
       backgroundColor: "rgba(50, 50, 50, 0.2)",
+      zIndex: 10,
     };
   };
 
@@ -136,6 +139,7 @@ const Canvas = () => {
           width: component.width,
           height: component.height,
           border: "2px solid green",
+          zIndex: 10,
         }}
         className="flex flex-col justify-center items-center"
       >
@@ -166,12 +170,13 @@ const Canvas = () => {
 
   return (
     <div
-      className="w-full h-screen bg-opacity-0"
+      className={`w-full h-screen bg-opacity-0 pointer-events-${devMode ? "auto" : "none"}`}
       onClick={handleClick} // Use click event to toggle selection
       onMouseMove={handleMouseMove}
+      
     >
-      <div className="absolute top-4 left-4 pointer-events-auto">
-        <div className="flex items-center gap-2 border-solid border-gray-800 border-2 rounded-md p-2">
+      <div className="absolute top-4 left-4 pointer-events-auto z-10">
+        <div className="flex items-center gap-2 bg-white border-solid border-gray-800 border-2 rounded-md p-2">
           <Switch
             id="dev-mode"
             checked={devMode}

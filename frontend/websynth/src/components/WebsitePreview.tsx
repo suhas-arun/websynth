@@ -7,7 +7,11 @@ import { recurseParseDirToFsTree, selectRootDir } from "@/utils/filesystem";
 import { mountDirAt, runNpmAt, runNpmInstallAt } from "@/utils/webcontainer";
 import { ROOT_DIR } from "@/app/constants/globals";
 
-const WebsitePreview = () => {
+interface WebsitePreviewProps {
+  devMode: boolean;
+}
+
+const WebsitePreview: React.FC<WebsitePreviewProps> = ({ devMode }) => {
   const [fileHandle, setFileHandle] = useState<FileSystemDirectoryHandle | null>(null);
   const [fileSystemTree, setFileSystemTree] = useState<FileSystemTree | null>(null);
 
@@ -58,7 +62,7 @@ const WebsitePreview = () => {
   };
 
   return (
-    <div className="absolute h-full w-full top-0 left-0 z-0 pointer-events-none">
+    <div className={`absolute h-full w-full top-0 left-0 z-0 pointer-events-${devMode ? "none" : "auto"}`}>
       <Button
         onClick={loadPreview}
         className="absolute top-4 right-4 pointer-events-auto"

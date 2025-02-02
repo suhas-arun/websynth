@@ -70,7 +70,7 @@ def make_change_to_file(file_path: str, changes: str) -> str:
     
     programmer = ClaudeClient()
     prompt = f"""You are a programmer tasked with making changes to the following NextJS code. 
-    You can only use shadcn components, nextjs, framer-motion and react. DO NOT use any other external libraries.
+    You can only use shadcn components, nextjs, and react. DO NOT use any other external libraries. Typography and Headers are not a shadcn component, do not use.
     ONLY return code within ```tsx``` delimiters.
     Only use the default tailwind colours, bg-primary, text-primary etc.
         Code:\n{current_code}

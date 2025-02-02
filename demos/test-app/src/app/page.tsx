@@ -1,109 +1,83 @@
 'use client';
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import React, { useState } from 'react';
+import Link from 'next/link';
 import { Button } from "@/components/ui/button";
-import { motion } from 'framer-motion';
-import { cn } from "@/lib/utils";
+import { 
+  Accordion, 
+  AccordionContent, 
+  AccordionItem, 
+  AccordionTrigger 
+} from "@/components/ui/accordion";
 
-interface PageProps {}
-
-export default function Home({}: PageProps) {
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [isHovered, setIsHovered] = useState(false);
-
-  useEffect(() => {
-    // Simulate data loading or initialization
-    const initializeComponent = async () => {
-      try {
-        // Simulate async operation
-        await new Promise(resolve => setTimeout(resolve, 500));
-        setIsLoading(false);
-      } catch (err) {
-        setError('Failed to load component');
-        setIsLoading(false);
-      }
-    };
-
-    initializeComponent();
-  }, []);
-
-  if (error) {
-    return (
-      <div 
-        role="alert" 
-        className="min-h-screen bg-destructive/10 text-destructive flex items-center justify-center"
-      >
-        {error}
-      </div>
-    );
-  }
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-background text-foreground flex items-center justify-center">
-        <div>Loading...</div>
-      </div>
-    );
-  }
-
+export default function Home() {
   return (
-    <div 
-      className="min-h-screen bg-background text-foreground flex items-center justify-center"
-      aria-label="WebSynth Landing Page"
-    >
-      <motion.div 
-        initial={{ opacity: 0, x: -50 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.5 }}
-        className={cn(
-          "absolute top-[88px] left-[239px] w-[1144px] h-[601px] bg-primary/10 rounded-lg p-8",
-          "transition-all duration-300 ease-in-out",
-          isHovered ? "shadow-xl scale-[1.02]" : ""
-        )}
-        onHoverStart={() => setIsHovered(true)}
-        onHoverEnd={() => setIsHovered(false)}
-        role="region"
-        aria-describedby="websynth-description"
+    <div className="relative w-full h-screen">
+      {/* Positioned Button */}
+      <Button 
+        className="absolute bg-yellow-500 hover:bg-green-500 text-black"
+        style={{
+          top: '222px',
+          left: '258px',
+          height: '207px',
+          width: '239px'
+        }}
       >
-        <div 
-          className="flex flex-col space-y-6 max-w-2xl mx-auto"
-          aria-live="polite"
+        Hackathon Button
+      </Button>
+
+      {/* Imperial Link Button */}
+      <Link href="/imperial">
+        <Button 
+          className="absolute bg-primary text-primary-foreground hover:bg-primary/90"
+          style={{
+            top: '50px',
+            right: '50px',
+            height: '60px',
+            width: '150px'
+          }}
         >
-          <h1 
-            className="text-5xl font-bold text-primary"
-            id="websynth-title"
-          >
-            WebSynth
-          </h1>
-          <p 
-            className="text-xl text-muted-foreground"
-            id="websynth-description"
-          >
-            WebSynth is an innovative website builder that empowers creators to design stunning, responsive websites with intuitive drag-and-drop technology. Transform your digital vision into reality with our powerful, user-friendly platform.
-          </p>
-          <div className="flex space-x-4">
-            <Button 
-              variant="default" 
-              size="lg"
-              aria-label="Get Started with WebSynth"
-              onMouseEnter={(e) => e.currentTarget.focus()}
-              className="transition-transform duration-200 hover:scale-105 active:scale-95"
-            >
-              Get Started
-            </Button>
-            <Button 
-              variant="outline" 
-              size="lg"
-              aria-label="Learn More about WebSynth"
-              onMouseEnter={(e) => e.currentTarget.focus()}
-              className="transition-transform duration-200 hover:scale-105 active:scale-95"
-            >
-              Learn More
-            </Button>
-          </div>
-        </div>
-      </motion.div>
+          Go to Imperial
+        </Button>
+      </Link>
+
+      {/* Positioned Accordion */}
+      <Accordion 
+        type="single" 
+        collapsible 
+        className="absolute w-[727px] h-[300px]"
+        style={{
+          top: '209px',
+          left: '740px'
+        }}
+      >
+        <AccordionItem value="what-are-hackathons">
+          <AccordionTrigger>What are Hackathons?</AccordionTrigger>
+          <AccordionContent>
+            Hackathons are intensive innovation events where tech professionals collaborate to create software solutions within a limited timeframe.
+          </AccordionContent>
+        </AccordionItem>
+        
+        <AccordionItem value="benefits">
+          <AccordionTrigger>Benefits of Hackathons</AccordionTrigger>
+          <AccordionContent>
+            Hackathons offer networking opportunities, skill development, portfolio building, and potential job prospects.
+          </AccordionContent>
+        </AccordionItem>
+        
+        <AccordionItem value="types">
+          <AccordionTrigger>Types of Hackathons</AccordionTrigger>
+          <AccordionContent>
+            Includes corporate hackathons, educational hackathons, social impact hackathons, and online/virtual hackathons.
+          </AccordionContent>
+        </AccordionItem>
+        
+        <AccordionItem value="tips">
+          <AccordionTrigger>Tips for Success</AccordionTrigger>
+          <AccordionContent>
+            Form diverse teams, plan ahead, focus on innovation, practice pitching, and be open to learning.
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
     </div>
   );
 }

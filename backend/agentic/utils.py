@@ -8,7 +8,7 @@ import os
 
 
 class ClaudeClient:
-    def __init__(self, model="claude-3-5-sonnet-latest"):
+    def __init__(self, model="claude-3-5-haiku-latest"):
         load_dotenv()
         if "ANTHROPIC_API_KEY" not in os.environ:
             print("no API key!")

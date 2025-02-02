@@ -54,23 +54,7 @@ export default function Home() {
     initWebContainer();
   }, []); // Run only once when component mounts
 
-  const [status, setStatus] = useState("Processing...");
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      fetch("http://localhost:8000/check-status/")
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.done) {
-            setStatus("Process Completed");
-            console.log("Process Completed");
-            clearInterval(interval);
-          }
-        });
-    }, 2000); 
-
-    return () => clearInterval(interval);
-  }, []);
+  
 
   // Handles the cases for: initial loading, reloading changed files, 
   // and handling package.json changes

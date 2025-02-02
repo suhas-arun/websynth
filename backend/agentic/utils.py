@@ -37,7 +37,7 @@ class ClaudeClient:
             new_code = self.__check_code(code)
             if new_code == "YES":
                 return new_code
-            code = self.__extract_tsx_code(new_code)
+            code = self.extract_tsx_code(new_code)
         return code
 
     def rewrite_code(
@@ -46,7 +46,7 @@ class ClaudeClient:
         with open(pathname, "w") as f:
             f.write(code)
 
-    def __extract_tsx_code(self, text: str):
+    def extract_tsx_code(self, text: str):
         """
         Extracts TypeScript React (TSX) code from a given text string.
 

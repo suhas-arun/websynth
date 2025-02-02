@@ -71,6 +71,7 @@ def make_change_to_file(file_path: str, changes: str) -> str:
     code = programmer.client.generate({prompt})
     
     tsx_code = programmer.extract_tsx_code(code.generations[0][0].text)
+    
 
     if tsx_code is None:
         return "No TSX code found in the response. Please try again."
@@ -79,7 +80,6 @@ def make_change_to_file(file_path: str, changes: str) -> str:
     
     return f"The changes to the code were successfully made to the file: {file_path}"
 
-@tool
 def check_install(component:str) -> None:
     """Tool to check if a component has already been dowloaded, and if not download it"""
     component_path = os.path.join(main_dir, f"{component}.tsx")

@@ -2,8 +2,18 @@
 import { useState, useEffect } from "react";
 import Sidesheet from "./Sidesheet";
 import ComponentTag from "./ComponentTag";
+import { Switch } from "./ui/switch";
+import { Label } from "./ui/label";
+import { Component } from "@/types/component";
 
-const Canvas = () => {
+interface CanvasProps {
+  devMode: boolean;
+  setDevMode: (devMode: boolean) => void;
+  components: Component[];
+  setComponents: (components: Component[]) => void;    
+}
+
+const Canvas: React.FC<CanvasProps> = ({ devMode, setDevMode, components, setComponents }) => {
   // Selection state
   const [startPos, setStartPos] = useState<{ x: number; y: number } | null>(null);
   const [currentPos, setCurrentPos] = useState<{ x: number; y: number } | null>(null);
@@ -13,11 +23,6 @@ const Canvas = () => {
 
   // Sidesheet state
   const [sidesheetOpen, setSidesheetOpen] = useState(false);
-
-  // Stores components that have already been selected
-  const [components, setComponents] = useState<
-    { x: number, y: number, width: number, height: number, name: string, description: string }[]
-  >([]);
 
   // Currently selected component
   const [selectedComponent, setSelectedComponent] = useState<{ index: number, name: string, description: string } | null>(null);
@@ -38,7 +43,7 @@ const Canvas = () => {
   }, []);
 
   const handleClick = (e: React.MouseEvent) => {
-    if (sidesheetOpen) return;
+    if (sidesheetOpen || !devMode) return;
     if (!isSelecting) {
       setSelectedArea(null);
       // Start selecting: Record the initial position
@@ -60,6 +65,7 @@ const Canvas = () => {
   };
 
   const handleComponentClick = (index: number, name: string, description: string) => () => {
+    if (!devMode) return;
     setIsSelecting(false);
     setSelectedComponent({ index, name, description });
     const component = components[index];
@@ -68,7 +74,7 @@ const Canvas = () => {
   };
 
   const handleMouseMove = (e: React.MouseEvent) => {
-    if (isSelecting) {
+    if (isSelecting && devMode) {
       setCurrentPos({ x: e.clientX, y: e.clientY });
     }
   };
@@ -113,6 +119,7 @@ const Canvas = () => {
       height: rectangle.height,
       border: "2px solid black",
       backgroundColor: "rgba(50, 50, 50, 0.2)",
+      zIndex: 10,
     };
   };
 
@@ -130,6 +137,7 @@ const Canvas = () => {
           width: component.width,
           height: component.height,
           border: "2px solid green",
+          zIndex: 10,
         }}
         className="flex flex-col justify-center items-center"
       >
@@ -142,14 +150,43 @@ const Canvas = () => {
     );
   };
 
+  const toggleDevMode = (checked: boolean) => {
+    if (!checked) {
+      setIsSelecting(false);
+      setStartPos(null);
+      setCurrentPos(null);
+      setSelectedArea(null);
+      setSelectedComponent(null);
+      setDevMode(checked);
+    } else {
+      setTimeout(() => {
+        setDevMode(checked);
+        setIsSelecting(false);
+      }, 100);
+    }
+  }
+
   return (
     <div
-      className="w-full h-screen bg-white"
+      className={`w-full h-screen bg-opacity-0 pointer-events-${devMode ? "auto" : "none"}`}
       onClick={handleClick} // Use click event to toggle selection
       onMouseMove={handleMouseMove}
+      
     >
+      <div className="absolute top-4 left-4 pointer-events-auto z-10">
+        <div className="flex items-center gap-2 bg-white border-solid border-gray-800 border-2 rounded-md p-2">
+          <Switch
+            id="dev-mode"
+            checked={devMode}
+            onCheckedChange={(checked) => toggleDevMode(checked)}
+          />
+          <Label htmlFor="dev-mode">Dev Mode</Label>
+        </div>
+      </div>
+
+
       {/* Display area while selecting */}
-      {isSelecting && startPos && currentPos &&
+      {devMode && isSelecting && startPos && currentPos &&
         <div style={getRectangleStyle({
           x: Math.min(startPos.x, currentPos.x),
           y: Math.min(startPos.y, currentPos.y),
@@ -159,7 +196,7 @@ const Canvas = () => {
       }
 
       {/* Display selected area */}
-      {selectedArea &&
+      {devMode && selectedArea &&
         <div style={getRectangleStyle(selectedArea)} />
       }
 
@@ -179,7 +216,7 @@ const Canvas = () => {
       />
 
       {/* Display selected components */}
-      {components.map((component, i) => getComponentElement(component, i))}
+      {devMode && components.map((component, i) => getComponentElement(component, i))}
     </div>
   );
 };

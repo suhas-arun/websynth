@@ -1,4 +1,4 @@
-from input import Data, Component
+from websynth.backend.utils.input import Data, Component
 import json #Not sure if this is needed
 
 def json_to_class(json_data):

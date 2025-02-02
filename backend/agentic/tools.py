@@ -1,6 +1,6 @@
 from langchain_core.tools import tool
 import os
-from utils import ClaudeClient
+from agentic.utils import ClaudeClient
 import subprocess
 
 main_dir = '../virtual-frontend/src/app/'

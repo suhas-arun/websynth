@@ -41,14 +41,12 @@ const DevSidebar: React.FC<DevSidebarProps> = ({ devMode, toggleDevMode, loadFsA
           <Switch checked={devMode} onCheckedChange={toggleDevMode} />
         </div>
 
-        {devMode && (
-          <div className="space-y-2">
-            <Button
-              onClick={loadFsAndRefresh}
-              className="w-full"
-            >Upload Local Files</Button>
-          </div>
-        )}
+        <div className="space-y-2">
+          <Button
+            onClick={loadFsAndRefresh}
+            className="w-full"
+          >Upload Local Files</Button>
+        </div>
       </div>
     </div>
   );

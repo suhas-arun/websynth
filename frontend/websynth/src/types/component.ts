@@ -5,4 +5,5 @@ export type Component = {
   height: number;
   name: string;
   description: string;
+  page: string;
 };

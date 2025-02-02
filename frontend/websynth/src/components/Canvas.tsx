@@ -10,10 +10,11 @@ interface CanvasProps {
   devMode: boolean;
   setDevMode: (devMode: boolean) => void;
   components: Component[];
-  setComponents: (components: Component[]) => void;    
+  setComponents: (components: Component[]) => void;   
+  currentUrl: string; 
 }
 
-const Canvas: React.FC<CanvasProps> = ({ devMode, setDevMode, components, setComponents }) => {
+const Canvas: React.FC<CanvasProps> = ({ devMode, setDevMode, components, setComponents, currentUrl }) => {
   // Selection state
   const [startPos, setStartPos] = useState<{ x: number; y: number } | null>(null);
   const [currentPos, setCurrentPos] = useState<{ x: number; y: number } | null>(null);
@@ -79,12 +80,12 @@ const Canvas: React.FC<CanvasProps> = ({ devMode, setDevMode, components, setCom
     }
   };
 
-  const handleComponentSubmit = (name: string, description: string) => {
+  const handleComponentSubmit = (name: string, description: string, page: string) => {
     if (!selectedArea) return;
     if (selectedComponent) {
       // Edit existing component if selected
       const updatedComponents = [...components];
-      updatedComponents[selectedComponent.index!] = { ...selectedArea, name, description };
+      updatedComponents[selectedComponent.index!] = { ...selectedArea, name, description, page };
       setComponents(updatedComponents);
       setSelectedComponent(null);
       setSidesheetOpen(false);
@@ -92,7 +93,7 @@ const Canvas: React.FC<CanvasProps> = ({ devMode, setDevMode, components, setCom
       // Add new component
       setComponents([
         ...components,
-        { ...selectedArea, name, description },
+        { ...selectedArea, name, description, page },
       ]);
       setSelectedArea(null);
       setSidesheetOpen(false);
@@ -124,7 +125,7 @@ const Canvas: React.FC<CanvasProps> = ({ devMode, setDevMode, components, setCom
   };
 
   const getComponentElement = (
-    component: { x: number; y: number; width: number; height: number, name: string, description: string },
+    component: { x: number; y: number; width: number; height: number, name: string, description: string, page: string },
     index: number
   ) => {
     return (
@@ -213,6 +214,7 @@ const Canvas: React.FC<CanvasProps> = ({ devMode, setDevMode, components, setCom
         onComponentSubmit={handleComponentSubmit}
         onComponentDelete={handleComponentDelete}
         selectedComponent={selectedComponent}
+        page={currentUrl}
       />
 
       {/* Display selected components */}

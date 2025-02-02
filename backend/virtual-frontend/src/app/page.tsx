@@ -1,20 +1,47 @@
 'use client';
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import Link from 'next/link';
 
-export default function HomePage() {
+export default function Home() {
   return (
-    <div className="container mx-auto p-4">
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold">Welcome to Our Website</h1>
-        <Button variant="secondary" className="bg-orange-500 hover:bg-orange-600 text-white">
-          Bin James
-        </Button>
+    <div className="relative w-full h-screen flex flex-col items-center">
+      <div 
+        className="absolute flex items-center justify-center text-center"
+        style={{ 
+          left: '250px', 
+          top: '134px', 
+          height: '82px', 
+          width: '1053px' 
+        }}
+      >
+        <h1 className="text-5xl font-bold text-gray-800">
+          Welcome to Hackathon Central
+        </h1>
       </div>
-      <Link href="/hello-sid">
-        <Button>Go to Hello Sid Page</Button>
-      </Link>
+
+      {/* Text Body Component */}
+      <div 
+        className="absolute flex items-center justify-center p-6 bg-white rounded-lg shadow-md"
+        style={{ 
+          left: '274px', 
+          top: '276px', 
+          height: '423px', 
+          width: '1015px' 
+        }}
+      >
+        <p className="text-lg text-gray-700 text-left">
+          Hackathons are intensive, collaborative events where innovators, 
+          developers, and creators come together to solve complex challenges 
+          and build groundbreaking solutions. Whether you're a seasoned 
+          programmer or a passionate beginner, hackathons offer a unique 
+          platform to learn, innovate, and transform ideas into reality.
+
+          Our community provides a supportive environment where creativity 
+          meets technology. Join us to network with like-minded individuals, 
+          push your technical boundaries, and potentially create the next 
+          big technological breakthrough.
+        </p>
+      </div>
     </div>
-  )
+  );
 }

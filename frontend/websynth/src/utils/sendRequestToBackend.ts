@@ -4,7 +4,10 @@ export const sendRequestToBackend = async (url: string, request: Request) => {
   try {
     const response = await fetch(url, {
       method: "POST",
-      body: JSON.stringify({ data: request }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(request),
     });
 
     if (!response.ok) {

@@ -9,12 +9,12 @@ import { ROOT_DIR } from "@/app/constants/globals";
 
 interface WebsitePreviewProps {
   devMode: boolean;
+  setCurrentUrl: (url: string) => void;
 }
 
-const WebsitePreview: React.FC<WebsitePreviewProps> = ({ devMode }) => {
+const WebsitePreview: React.FC<WebsitePreviewProps> = ({ devMode, setCurrentUrl }) => {
   const [fileHandle, setFileHandle] = useState<FileSystemDirectoryHandle | null>(null);
   const [fileSystemTree, setFileSystemTree] = useState<FileSystemTree | null>(null);
-  const [currentUrl, setCurrentUrl] = useState<string>('/');
 
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const webcontainerInstance = useRef<WebContainer>(null);

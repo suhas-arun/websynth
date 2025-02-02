@@ -26,9 +26,10 @@ import { Input } from "@/components/ui/input"
 interface SidesheetProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onComponentSubmit: (name: string, description: string) => void;
+  onComponentSubmit: (name: string, description: string, page: string) => void;
   onComponentDelete: (index: number) => void;
   selectedComponent?: { index: number, name: string, description: string } | null;
+  page: string;
 }
 
 const formSchema = z.object({
@@ -37,7 +38,7 @@ const formSchema = z.object({
 });
 
 const Sidesheet: React.FC<SidesheetProps> = (
-  { open, onOpenChange, onComponentSubmit, onComponentDelete, selectedComponent }) => {
+  { open, onOpenChange, onComponentSubmit, onComponentDelete, selectedComponent, page }) => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -47,7 +48,7 @@ const Sidesheet: React.FC<SidesheetProps> = (
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    onComponentSubmit(values.name, values.description);
+    onComponentSubmit(values.name, values.description, page);
     form.reset();
   }
 

@@ -11,6 +11,7 @@ import { BACKEND_ENDPOINT } from "./constants/globals";
 export default function Home() {
   // Dev mode => user can select components. Otherwise, they interact directly with the page
   const [devMode, setDevMode] = useState(false);
+  const [currentUrl, setCurrentUrl] = useState<string>("/");
   const pageRef = useRef<HTMLDivElement>(null);
 
   // Stores components that have already been selected
@@ -39,8 +40,9 @@ export default function Home() {
           setDevMode={setDevMode}
           components={components}
           setComponents={setComponents}
+          currentUrl={currentUrl}
         />
-        <WebsitePreview devMode={devMode} />
+        <WebsitePreview devMode={devMode} setCurrentUrl={setCurrentUrl}/>
       </div>
       <InputPrompt homepageRef={pageRef} handleSubmit={handleSubmit} />
     </div>

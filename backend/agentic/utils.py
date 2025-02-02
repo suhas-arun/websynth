@@ -60,7 +60,7 @@ class ClaudeClient:
         match = re.search(r"```tsx\n(.*?)\n```", text, re.DOTALL)
         return match.group(1) if match else None
 
-    def __syntax_check_typescript(self, code_str: str) -> (bool, str):
+    def __syntax_check_typescript(self, ts_code: str) -> (bool, str):
         prompt = """You are an expert in TypeScript and React, specializing in Next.js. Your task is to evaluate the syntax of a given page.tsx file. The code is below, delimited by ```.
         
         Rules:
@@ -72,10 +72,10 @@ class ClaudeClient:
 
         Output (only if there are syntax errors):
         A new extract of the corrected page.tsx file with the relevant changes. Ensure the output contains only the corrected code, delimited by ```, and nothing else. Do not add any explanations or comments."""
-        output = self.client.generate({f"""{prompt}\n ```{code_str}```"""})
+        output = self.client.generate({f"""{prompt}\n ```{ts_code}```"""})
 
         if output == "YES":
-            return (True, code_str)
+            return (True, ts_code)
         else:
             return (False, output)
 
@@ -102,3 +102,7 @@ class ClaudeClient:
                 return True
         finally:
             os.remove(temp_file_path)
+
+    def check_typescript(self, ts_code: str) -> bool:
+        self.__syntax_check_typescript(ts_code)
+        self.__type_check_typescript(ts_code)

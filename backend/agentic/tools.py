@@ -4,8 +4,10 @@ from agentic.utils import ClaudeClient
 import subprocess
 import base64
 import anthropic
+import re
 
 main_dir = '../virtual-frontend/src/app/'
+main_dir_components = '../virtual-frontend/src/components/'
 base_dir = '../virtual-frontend'
 
 # @tool
@@ -34,7 +36,7 @@ def create_file(file_path: str) -> None:
     if dir_path:
         os.makedirs(os.path.join(main_dir, dir_path), exist_ok=True)
     with open(os.path.join(main_dir, file_path), "w") as f:
-        f.write('') 
+        f.write('')
 
 @tool 
 def list_dir(dir_path: str) -> list:
@@ -48,7 +50,7 @@ def list_dir(dir_path: str) -> list:
 @tool
 def make_change_to_file(file_path: str, changes: str) -> str:
     """Tool to tell a programmer what changes to make to a file.
-    
+
     Args:
         file_path (str): The path to the file to make changes to.
         change (str): A descriptive message explaining the change to make.
@@ -71,38 +73,49 @@ def make_change_to_file(file_path: str, changes: str) -> str:
         Changes:\n{changes}        
     """ 
     code = programmer.client.generate({prompt})
-    
+
     tsx_code = programmer.extract_tsx_code(code.generations[0][0].text)
-    
+
 
     if tsx_code is None:
         return "No TSX code found in the response. Please try again."
+    
+    ## Check & install missing components
+    pattern = r'import\s+(?:\{[\s\w,]*\}|\w+)\s+from\s+["\']@/components/([\w/]+)["\'];?'
+    matches = re.findall(pattern, tsx_code)
+
+    components = [match.split("/")[-1] for match in matches]
+    unique_components = set(components)
+
+    for c in unique_components:
+        component = c.replace("@/", "")
+
+        component_path = os.path.join(main_dir_components, f"{component}.tsx")
+
+        if os.path.exists(component_path):
+            print(f"{component} is already installed.")
+            continue
+        else:
+            print(f"Installing {component}...")
+        try:
+            command = f"echo 'Use --force' | npx shadcn@latest add {component}"
+            subprocess.run(
+                command,
+                shell=True,
+                check=True,
+                text=True,
+                cwd=base_dir
+            )
+            print(f"{component} installed successfully.")
+        except subprocess.CalledProcessError as error:
+            print(f"Failed to install {component}: {error}")
+
+
     
     programmer.rewrite_code(tsx_code, str(os.path.join(main_dir, file_path)))
     
     return f"The changes to the code were successfully made to the file: {file_path}"
 
-def check_install(component:str) -> None:
-    """Tool to check if a component has already been dowloaded, and if not download it"""
-    component_path = os.path.join(main_dir, f"{component}.tsx")
-
-    if os.path.exists(component_path):
-        print(f"{component} is already installed.")
-        return
-    else:
-        print(f"Installing {component}...")
-    try:
-        command = f"echo 'Use --force' | npx shadcn@latest add {component}"
-        subprocess.run(
-            command,
-            shell=True,
-            check=True,
-            text=True,
-            cwd=base_dir
-        )
-        print(f"{component} installed successfully.")
-    except subprocess.CalledProcessError as error:
-        print(f"Failed to install {component}: {error}")
 
 def image_to_text(image_path: str) -> str:
     """Tool to convert an image to text using Claude"""

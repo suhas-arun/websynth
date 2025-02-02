@@ -9,10 +9,9 @@ interface DevSidebarProps {
   devMode: boolean;
   toggleDevMode: (devMode: boolean) => void;
   loadFsAndRefresh: () => void;
-  installAndCompile: () => void;
 }
 
-const DevSidebar: React.FC<DevSidebarProps> = ({ devMode, toggleDevMode, loadFsAndRefresh, installAndCompile }) => {
+const DevSidebar: React.FC<DevSidebarProps> = ({ devMode, toggleDevMode, loadFsAndRefresh }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -48,10 +47,6 @@ const DevSidebar: React.FC<DevSidebarProps> = ({ devMode, toggleDevMode, loadFsA
               onClick={loadFsAndRefresh}
               className="w-full"
             >Upload Local Files</Button>
-            <Button
-              onClick={installAndCompile}
-              className="w-full"
-            >Manually Compile</Button>
           </div>
         )}
       </div>

@@ -17,8 +17,8 @@ import {
   DrawerTrigger,
 } from "@/components/ui/drawer"
 import TextareaAutosize from "react-textarea-autosize";
-import { Input } from "@/components/ui/input";
 import { captureScreenshot } from "@/utils/captureScreenshot";
+import BankerButton from "./BankerButton";
 
 interface InputPromptProps {
   homepageRef?: React.RefObject<HTMLDivElement | null>;
@@ -31,6 +31,7 @@ const formSchema = z.object({
 
 const InputPrompt: React.FC<InputPromptProps> = ({ homepageRef, handleSubmit }) => {
   const [open, setOpen] = useState(false); 
+  const [disabled, setDisabled] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -48,24 +49,22 @@ const InputPrompt: React.FC<InputPromptProps> = ({ homepageRef, handleSubmit }) 
   };
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    setDisabled(true);
     if (homepageRef && homepageRef.current) {
       let screenshot = await captureScreenshot(homepageRef.current);
       handleSubmit(values.prompt, screenshot);
     }
     form.reset(); 
     setOpen(false); 
+    setDisabled(false);
   };
 
   return (
     <div className="w-full h-full" data-html2canvas-ignore="true">
       <div className="fixed bottom-0 left-0 right-0 w-full max-w-2xl mx-auto px-4 mb-4 flex justify-center items-center">
         <Drawer open={open} onOpenChange={setOpen}> 
-          <DrawerTrigger className="w-full">
-            <Input
-              placeholder="Ask Claude..."
-              className="border-solid resize-none border-2 border-blue-900 rounded-md w-full p-2"
-              onClick={() => setOpen(true)} 
-            />
+          <DrawerTrigger className="w-full outline-none">
+            <BankerButton />
           </DrawerTrigger>
           <DrawerContent className="max-w-[60%] mx-auto left-0 right-0 flex items-center text-center">
             <DrawerHeader>
@@ -80,12 +79,13 @@ const InputPrompt: React.FC<InputPromptProps> = ({ homepageRef, handleSubmit }) 
                   render={({ field }) => (
                     <FormItem>
                       <TextareaAutosize
-                        placeholder="Ask Claude..." {...field}
+                        placeholder="Ask WebSynth.ai..." {...field}
                         className="border-solid resize-none border-2 border-blue-900 rounded-md w-full p-2"
                         onKeyDown={handleKeyDown}
                         minRows={2}
                         maxRows={6}
                         autoFocus={true}
+                        disabled={disabled}
                       />
                     </FormItem>
                   )}

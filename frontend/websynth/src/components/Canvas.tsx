@@ -12,12 +12,11 @@ interface CanvasProps {
   components: Component[];
   setComponents: (components: Component[]) => void;
   loadFsAndRefresh: () => void;
-  installAndCompile: () => void;
   currentUrl: string; 
 }
 
 const Canvas: React.FC<CanvasProps> = (
-  { devMode, setDevMode, components, setComponents, loadFsAndRefresh, installAndCompile, currentUrl }) => {
+  { devMode, setDevMode, components, setComponents, loadFsAndRefresh, currentUrl }) => {
   // Selection state
   const [startPos, setStartPos] = useState<{ x: number; y: number } | null>(null);
   const [currentPos, setCurrentPos] = useState<{ x: number; y: number } | null>(null);
@@ -121,7 +120,8 @@ const Canvas: React.FC<CanvasProps> = (
       top: rectangle.y,
       width: rectangle.width,
       height: rectangle.height,
-      border: "2px solid black",
+      border: "2px dashed black",
+      borderRadius: "4px",
       backgroundColor: "rgba(50, 50, 50, 0.2)",
       zIndex: 10,
     };
@@ -141,6 +141,7 @@ const Canvas: React.FC<CanvasProps> = (
           width: component.width,
           height: component.height,
           border: "2px solid green",
+          borderRadius: "4px",
           zIndex: 10,
         }}
         className="flex flex-col justify-center items-center"
@@ -176,7 +177,6 @@ const Canvas: React.FC<CanvasProps> = (
         devMode={devMode}
         toggleDevMode={toggleDevMode}
         loadFsAndRefresh={loadFsAndRefresh}
-        installAndCompile={installAndCompile}
       />
       <div
         className={`w-full h-screen bg-opacity-0 pointer-events-${devMode ? "auto" : "none"}`}

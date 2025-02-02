@@ -130,6 +130,7 @@ export default function Home() {
     console.log(request)
     const response = sendRequestToBackend(BACKEND_ENDPOINT, request);
     console.log(response);
+    setComponents([]);
   };
 
   return (

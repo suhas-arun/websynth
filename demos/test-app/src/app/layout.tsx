@@ -1,8 +1,7 @@
 'use client';
 import "./globals.css";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
 import { ThemeProvider } from "@/components/providers/theme";
+import Link from 'next/link';
 
 export default function RootLayout({
   children,
@@ -11,37 +10,23 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head>
-        <meta charSet="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-        <link rel="icon" href="/favicon.ico" />
-      </head>
       <body className="min-h-screen flex flex-col">
         <ThemeProvider attribute="class">
-          <header className="w-full">
-            <nav className="flex justify-center items-center space-x-4 p-4 bg-primary text-primary-foreground">
-              <Link href="/" className="hover:underline">
-                <Button variant="ghost">Home</Button>
-              </Link>
-              <Link href="/cats" className="hover:underline">
-                <Button variant="ghost">Cats</Button>
-              </Link>
-              <Link href="/dogs" className="hover:underline">
-                <Button variant="ghost">Dogs</Button>
-              </Link>
-              <Link href="/marvin" className="hover:underline">
-                <Button variant="ghost">Marvin Cheese</Button>
-              </Link>
-            </nav>
-          </header>
-          
-          <main className="flex-grow container mx-auto px-4 py-8">
-            {children}
-          </main>
-          
-          <footer className="w-full bg-secondary text-secondary-foreground p-4 text-center">
-            © {new Date().getFullYear()} Animal Lovers App. All rights reserved.
-          </footer>
+          <nav className="bg-green-500 h-16 w-[1095px] mx-auto flex items-center">
+            <Link 
+              href="/" 
+              className="text-primary-foreground px-4 py-2 hover:bg-green-600 transition-colors"
+            >
+              Home
+            </Link>
+            <Link 
+              href="/hackathons" 
+              className="text-primary-foreground px-4 py-2 hover:bg-green-600 transition-colors"
+            >
+              Hackathons
+            </Link>
+          </nav>
+          {children}
         </ThemeProvider>
       </body>
     </html>

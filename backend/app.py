@@ -3,7 +3,6 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from agentic.graph import AgenticApp
 from utils.input import Data, input_to_prompt
-from agentic.tools import ROOT, MAIN, COMPONENTS
 
 app = FastAPI(debug=True)
 agent = AgenticApp()

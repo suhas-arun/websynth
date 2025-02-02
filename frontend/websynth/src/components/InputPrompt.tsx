@@ -19,7 +19,6 @@ import {
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import TextareaAutosize from "react-textarea-autosize";
-import { Input } from "@/components/ui/input";
 import { captureScreenshot } from "@/utils/captureScreenshot";
 
 interface InputPromptProps {

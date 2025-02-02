@@ -1,7 +1,7 @@
 "use client";
-
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { useState } from "react";
 import { z } from "zod";
 import {
   Form,
@@ -30,36 +30,41 @@ const formSchema = z.object({
 })
 
 const InputPrompt: React.FC<InputPromptProps> = ({ homepageRef, handleSubmit }) => {
+  const [open, setOpen] = useState(false); 
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       prompt: "",
     },
-  })
+  });
 
-  // Submit form on Enter key press (Shift + Enter for new line)
+
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       form.handleSubmit(onSubmit)();
     }
-  }
+  };
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     if (homepageRef && homepageRef.current) {
       let screenshot = await captureScreenshot(homepageRef.current);
       handleSubmit(values.prompt, screenshot);
     }
-  }
+    form.reset(); 
+    setOpen(false); 
+  };
 
   return (
     <div className="w-full h-full" data-html2canvas-ignore="true">
       <div className="fixed bottom-0 left-0 right-0 w-full max-w-2xl mx-auto px-4 mb-4 flex justify-center items-center">
-        <Drawer>
+        <Drawer open={open} onOpenChange={setOpen}> 
           <DrawerTrigger className="w-full">
             <Input
               placeholder="Ask Claude..."
               className="border-solid resize-none border-2 border-blue-900 rounded-md w-full p-2"
+              onClick={() => setOpen(true)} 
             />
           </DrawerTrigger>
           <DrawerContent className="max-w-[60%] mx-auto left-0 right-0 flex items-center text-center">
@@ -76,7 +81,7 @@ const InputPrompt: React.FC<InputPromptProps> = ({ homepageRef, handleSubmit }) 
                     <FormItem>
                       <TextareaAutosize
                         placeholder="Ask Claude..." {...field}
-                        className="border-solid resize-none border-2 border-blue-00 rounded-md w-full p-2"
+                        className="border-solid resize-none border-2 border-blue-900 rounded-md w-full p-2"
                         onKeyDown={handleKeyDown}
                         minRows={2}
                         maxRows={6}
@@ -91,8 +96,7 @@ const InputPrompt: React.FC<InputPromptProps> = ({ homepageRef, handleSubmit }) 
         </Drawer>
       </div>
     </div>
-
-  )
-}
+  );
+};
 
 export default InputPrompt;

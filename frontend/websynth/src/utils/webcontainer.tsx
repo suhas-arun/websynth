@@ -12,7 +12,7 @@ const deleteMount = async (mountPoint: string, webContainer: WebContainer): Prom
     console.log("Existing mount point found and deleted.");
     return true;
   } catch (error) {
-    console.log("Mount point does not already exist so will not delete.");
+    console.log("Mount point does not already exist so will not delete.", error);
     return false;
   }
 }
@@ -123,7 +123,7 @@ const targetRewriteInContainer = async (webContainer: WebContainer, mountPoint: 
 						await webContainer.fs.mkdir(parentDir, { recursive: true });
 						console.log(`Created parent directory: ${parentDir}`);
 					} catch (mkdirError) {
-						console.log(`Parent directory may already exist: ${parentDir}`);
+						console.log(`Parent directory may already exist: ${parentDir}`, mkdirError);
 					}
 				}
 

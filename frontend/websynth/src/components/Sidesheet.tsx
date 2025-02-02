@@ -52,20 +52,13 @@ const Sidesheet: React.FC<SidesheetProps> = (
     form.reset();
   }
 
-  // Autofill form fields when a component is selected
-  useEffect(() => {
-    if (selectedComponent) {
-      form.setValue("name", selectedComponent.name);
-      form.setValue("description", selectedComponent.description);
-    }
-  }, [selectedComponent]);
-
   // Reset form fields when the sidesheet is closed
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (!open) {
       form.reset();
     }
-  }, [open]);
+  }, [open, form.reset]);
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -107,7 +100,7 @@ const Sidesheet: React.FC<SidesheetProps> = (
                     <Input placeholder="blue button containing the text..." {...field} />
                   </FormControl>
                   <FormDescription>
-                    Briefly describe the component's desired appearance and functionality.
+                    {"Briefly describe the component's desired appearance and functionality."}
                   </FormDescription>
                   <FormMessage />
                 </FormItem>

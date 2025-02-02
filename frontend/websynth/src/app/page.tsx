@@ -31,7 +31,7 @@ export default function Home() {
   // States for file system handling
   const [fileHandle, setFileHandle] = useState<FileSystemDirectoryHandle | null>(null);
   const [fileSystemTree, setFileSystemTree] = useState<FileSystemTree | null>(null);
-  const [rootPath, setRootPath] = useState<string | null>(null);
+  const [, setRootPath] = useState<string | null>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const webcontainerInstance = useRef<WebContainer>(null);
 
@@ -59,7 +59,7 @@ export default function Home() {
   // and handling package.json changes
   // Will attempt to hot-reload but may re-compile if necessary
   const loadFsAndRefresh = async () => {
-    var compile = false;
+    let compile = false;
 
     if (fileSystemTree && fileHandle) {
       addLog("File system tree and file handle found. Comparing differences...");
@@ -93,7 +93,7 @@ export default function Home() {
         // Select root directory
         const rootDir = await selectRootDir();
         setFileHandle(rootDir);
-        let rootPath = window.prompt("Please enter the root directory path:");
+        const rootPath = window.prompt("Please enter the root directory path:");
         if (!rootPath) {
           addLog("No path entered. Aborting...");
           return;
@@ -122,10 +122,10 @@ export default function Home() {
 
   const installAndCompile = async () => {
     addLog("Installing dependencies...");
-    const installed = await runNpmInstallAt(webcontainerInstance.current!, ROOT_DIR);
+    await runNpmInstallAt(webcontainerInstance.current!, ROOT_DIR);
     addLog("Dependencies installed");
     addLog("Starting compilation...");
-    const compiled = await runNpmAt(webcontainerInstance.current!, ROOT_DIR, addLog);
+    await runNpmAt(webcontainerInstance.current!, ROOT_DIR, addLog);
     addLog("Finished compilation.");
 
     webcontainerInstance.current!.on('server-ready', (port, url) => {

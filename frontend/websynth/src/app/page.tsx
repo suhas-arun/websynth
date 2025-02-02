@@ -10,6 +10,13 @@ import { BACKEND_ENDPOINT, ROOT_DIR } from "./constants/globals";
 import { FileSystemTree, WebContainer } from "@webcontainer/api";
 import { compareFsTrees, hasPackageJsonChanges, recurseParseDirToFsTree, selectRootDir } from "@/utils/filesystem";
 import { mountDirAt, runNpmAt, runNpmInstallAt, targetRewriteInContainer } from "@/utils/webcontainer";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
+import { ScrollText } from "lucide-react";
+import Convert from "ansi-to-html";
 
 export default function Home() {
   // Dev mode => user can select components. Otherwise, they interact directly with the page
@@ -24,6 +31,14 @@ export default function Home() {
   const [fileSystemTree, setFileSystemTree] = useState<FileSystemTree | null>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const webcontainerInstance = useRef<WebContainer>(null);
+
+  // Logging
+  const [logs, setLogs] = useState<string[]>([]);
+  const convert = new Convert();
+  const addLog = (message: string) => {
+    const parsedMessage = convert.toHtml(message);
+    setLogs((prevLogs) => [...prevLogs, parsedMessage]);
+  };
 
   // Initialise WebContainer instance
   useEffect(() => {
@@ -44,32 +59,32 @@ export default function Home() {
     var compile = false;
 
     if (fileSystemTree && fileHandle) {
-      console.log("File system tree and file handle found. Comparing differences...");
+      addLog("File system tree and file handle found. Comparing differences...");
 
       // Compare new tree with old tree
       const newTree = await recurseParseDirToFsTree(fileHandle);
       const diffs = compareFsTrees(fileSystemTree, newTree);
-      console.log("Differences:", diffs);
+      addLog("Differences:" + diffs);
 
       if (diffs.size === 0) {
-        console.log("No differences, aborting..");
+        addLog("No differences, aborting..");
         return;
       }
 
-      console.log("Updating FileSystem...");
+      addLog("Updating FileSystem...");
       await targetRewriteInContainer(webcontainerInstance.current!, ROOT_DIR, diffs);
       setFileSystemTree(newTree);
-      console.log("FileSystem updated");
+      addLog("FileSystem updated");
 
       // Check if package.json has changed
       const containsPackageInstall = hasPackageJsonChanges(diffs);
 
       if (containsPackageInstall) {
-        console.log("Package.json has changed. Must re-compile.");
+        addLog("Package.json has changed. Must re-compile.");
         compile = true;
       }
     } else {
-      console.log("No file system tree found. Please select a directory.");
+      addLog("No file system tree found. Please select a directory.");
 
       // Select root directory
       const rootDir = await selectRootDir();
@@ -77,23 +92,25 @@ export default function Home() {
       const fsTree = await recurseParseDirToFsTree(rootDir);
       setFileSystemTree(fsTree);
 
-      console.log("Mounting directory...");
+      addLog("Mounting directory...");
       await mountDirAt(fsTree, ROOT_DIR, webcontainerInstance.current!);
       compile = true;
     }
 
     // Recompile if necessary
     if (compile) {
-      console.log("Compiling...")
+      addLog("Compiling...")
       await installAndCompile();
     }
   };
 
   const installAndCompile = async () => {
+    addLog("Installing dependencies...");
     const installed = await runNpmInstallAt(webcontainerInstance.current!, ROOT_DIR);
-    console.log("Installed:", installed);
-    const compiled = await runNpmAt(webcontainerInstance.current!, ROOT_DIR);
-    console.log("Compiled:", compiled);
+    addLog("Dependencies installed");
+    addLog("Starting compilation...");
+    const compiled = await runNpmAt(webcontainerInstance.current!, ROOT_DIR, addLog);
+    addLog("Finished compilation.");
 
     webcontainerInstance.current!.on('server-ready', (port, url) => {
       iframeRef.current!.src = url;
@@ -130,6 +147,34 @@ export default function Home() {
         <WebsitePreview devMode={devMode} iframeRef={iframeRef} />
       </div>
       <InputPrompt homepageRef={pageRef} handleSubmit={handleSubmit} />
+
+      <div className="absolute bottom-5 left-5">
+        {/* Floating log icon */}
+        <Popover>
+          <PopoverTrigger>
+            <button
+              className={`p-3 bg-gray-800 text-white rounded-full shadow-lg hover:bg-gray-700
+                ${logs.length > 0 ? "animate-pulse bg-red-500" : ""}`}
+            >
+              <ScrollText size={24} />
+            </button>
+          </PopoverTrigger>
+
+          {/* Log Popup Dialogue */}
+          <PopoverContent className="relative left-5 bottom-0 border-none p-0 max-w-150 bg-gray-800">
+            <div className="p-4 rounded-lg">
+              <h3 className="text-md text-white font-semibold pb-2">Logs</h3>
+              <div className="overflow-y-auto max-h-80 bg-black p-2 rounded-md">
+                {logs.map((log, index) => (
+                  <div key={index} className="text-sm text-white mb-2 whitespace-pre-wrap"
+                    dangerouslySetInnerHTML={{ __html: log }}
+                  />
+                ))}
+              </div>
+            </div>
+          </PopoverContent>
+        </Popover>
+      </div>
     </div>
   );
 }

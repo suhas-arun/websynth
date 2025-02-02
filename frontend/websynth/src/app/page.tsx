@@ -139,7 +139,7 @@ export default function Home() {
       prompt,
       screenshot,
       components,
-      root: "/Users/benjames/dev/websynth/demos/test-app",
+      root: rootPath || fileHandle!.name
     };
     console.log(request)
     const response = sendRequestToBackend(BACKEND_ENDPOINT, request);

@@ -32,7 +32,8 @@ const mountDirAt = async (fsTree: FileSystemTree, mountPoint: string, webContain
   }
 }
 
-const runNpmAt = async (webContainer: WebContainer, mountPoint: string): Promise<boolean> => {
+const runNpmAt = async (webContainer: WebContainer, mountPoint: string, addLog: (message: string) => void)
+  : Promise<boolean> => {
   try {
 		const script = `
 			const notifyParent = () => {
@@ -59,14 +60,14 @@ const runNpmAt = async (webContainer: WebContainer, mountPoint: string): Promise
 
     npmProcess.output.pipeTo(new WritableStream({
       write(data) {
-        console.log(data);
+        addLog(data);
       }
     }));
 
     console.log("Started npm process");
     return true;
   } catch (error) {
-    console.log("Failed to start npm process:", error);
+    addLog("Failed to start npm process: " + error);
     return false;
   }
 }

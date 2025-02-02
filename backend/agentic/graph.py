@@ -4,8 +4,7 @@ from langgraph.graph import StateGraph, MessagesState, START, END
 from agentic.utils import ClaudeClient
 from agentic.CustomToolNode import WebSynthToolNode
 from agentic.tools import list_dir, make_change_to_file, create_file
-from utils.input import Data
-print(os.system('ls'))
+from utils.input import Data, input_to_prompt
 os.chdir('backend/agentic')
 
 class AgenticWorkflow:
@@ -50,6 +49,7 @@ class AgenticApp:
         The first tool you must use is 'list_dir', which lists the contents of a directory. 
         Only request changes to tsx files do not change the globals.css.
         Never make components everything will be done in the page.tsx and layout.tsx files.
+        You cannot view the contents of the file, only the programmer can.
         When making a change, explain to the programmer what changes to make to the code, DO NOT write any code yourself, keep explaination direct to tasks do not expand at all.
         """
 
@@ -57,8 +57,9 @@ class AgenticApp:
         self.app = self.workflow.compile_graph()
 
     def run(self, data: Data):
-        return self.app.run({"messages": [
+        prompt = input_to_prompt(data)
+        return self.app.invoke({"messages": [
             {"role": "system", "content": self.PM_PROMPT}, 
-            {"role": "user", "content": data.prompt}
-        ]})
+            {"role": "user", "content": prompt}
+        ]}, debug=True)
   

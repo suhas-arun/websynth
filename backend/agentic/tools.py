@@ -2,6 +2,8 @@ from langchain_core.tools import tool
 import os
 from agentic.utils import ClaudeClient
 import subprocess
+import base64
+import anthropic
 
 main_dir = '../virtual-frontend/src/app/'
 base_dir = '../virtual-frontend'
@@ -101,3 +103,37 @@ def check_install(component:str) -> None:
         print(f"{component} installed successfully.")
     except subprocess.CalledProcessError as error:
         print(f"Failed to install {component}: {error}")
+
+def image_to_text(image_path: str) -> str:
+    """Tool to convert an image to text using Claude"""
+    image_media_type = "image/png"
+    image_data = open(image_path, "rb").read()
+    image_data = base64.b64encode(image_data).decode("utf-8")
+
+    client = anthropic.Anthropic()
+    message = client.messages.create(
+        model="claude-3-5-sonnet-20241022",
+        max_tokens=1024,
+        messages=[
+            {
+                "role": "user",
+                "content": [
+                    {
+                        "type": "image",
+                        "source": {
+                            "type": "base64",
+                            "media_type": image_media_type,
+                            "data": image_data,
+                        },
+                    },
+                    {
+                        "type": "text",
+                        "text": "Describe this image."
+                    }
+                ],
+            }
+        ],
+    )
+    return message.content[0].text
+
+

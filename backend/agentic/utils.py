@@ -4,7 +4,6 @@ import os
 import re
 import subprocess
 import tempfile
-import utils
 import os
 
 
@@ -103,47 +102,3 @@ class ClaudeClient:
                 return True
         finally:
             os.remove(temp_file_path)
-
-        # Examples to test typechecking
-
-        # ex_1_valid = """function multiply(a: number, b: number): number {
-        #     return a * b;
-        # }
-
-        # const result: number = multiply(5, 10);
-        # console.log(result);
-        # """
-
-        # ex_1_invalid = """function concatenateStrings(a: string, b: string): string {
-        #     return a + b;
-        # }
-
-        # const result: number = concatenateStrings("Hello", "World"); // Type mismatch
-        # console.log(result);"""
-
-        # ex_2_valid = """interface User {
-        #     id: number;
-        #     name: string;
-        #     isAdmin: boolean;
-        # }
-
-        # const user: User = {
-        #     id: 1,
-        #     name: "Alice",
-        #     isAdmin: true
-        # };
-
-        # console.log(user);"""
-
-        # ex_2_invalid = """interface Product {
-        #     id: number;
-        #     name: string;
-        #     price: number;
-        # }
-
-        # const product: Product = {
-        #     id: "A100",  //  Type Error: should be a number
-        #     name: "Laptop",
-        #     price: "1999"  // Type Error: should be a number
-        # };
-        # console.log(product);"""

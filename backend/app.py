@@ -1,6 +1,6 @@
-from utils.input import Data, input_to_prompt
 from fastapi import FastAPI
 from agentic.graph import AgenticApp
+from utils.input import Data, input_to_prompt
 
 app = FastAPI()
 agent = AgenticApp()

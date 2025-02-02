@@ -7,6 +7,10 @@ from utils.input import Data, input_to_prompt
 app = FastAPI(debug=True)
 agent = AgenticApp()
 
+message = ""
+
+process_done = False
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  # Allow all origins (or specify your frontend URL)
@@ -17,6 +21,9 @@ app.add_middleware(
 
 @app.post("/submit/")
 async def root(data: Data):
+    global process_done
+    process_done = False  # Reset status
+
     global ROOT, MAIN, COMPONENTS
 
     root = data.root
@@ -27,7 +34,12 @@ async def root(data: Data):
 
     # Run the Agentic app
     agent.run(data)
+    process_done = True  # Update status
     return {"message": "Success"}
+
+@app.get("/check-status/")
+async def check_status():
+    return {"done": process_done}
 
 @app.get("/")
 def read_root():

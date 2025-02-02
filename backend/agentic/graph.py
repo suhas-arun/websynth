@@ -23,10 +23,8 @@ class AgenticWorkflow:
       return END
 
   def call_model(self, state: MessagesState):
-    #   print("Calling model")
       messages = state["messages"]
       response = self.model_with_tools.invoke(messages)
-    #   print('Tool Model Response: ', response.tool_calls)
       return {"messages": [response]}
 
   def compile_graph(self):

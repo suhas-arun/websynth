@@ -154,7 +154,7 @@ const Canvas: React.FC<CanvasProps> = (
     );
   };
 
-  const toggleDevMode = (checked: boolean) => {
+  const toggleDevMode = async (checked: boolean) => {
     if (!checked) {
       setIsSelecting(false);
       setStartPos(null);
@@ -203,8 +203,8 @@ const Canvas: React.FC<CanvasProps> = (
           open={sidesheetOpen}
           onOpenChange={(open) => {
             if (!open) {
-              setSelectedArea(null);
-              setSelectedComponent(null);
+              toggleDevMode(false);
+              setTimeout(() => toggleDevMode(true), 10);
             }
             setSidesheetOpen(open);
           }}

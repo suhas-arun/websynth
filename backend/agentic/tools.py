@@ -5,27 +5,20 @@ import subprocess
 import base64
 import anthropic
 import re
-
-ROOT = ""
-COMPONENTS = ""
-MAIN = ""
-
-# main_dir = MAIN
-# main_dir_components = COMPONENTS
-# base_dir = ROOT
+from agentic.config import Config
 
 # @tool
 # def read_file(file_path: str) -> str:
 #     """Tool to read a file and return its content as a string."""
 #     print('Reading file: ', file_path)
-#     with open(os.path.join(MAIN, file_path), "r") as f:
+#     with open(os.path.join(main_dir, file_path), "r") as f:
 #         return f.read() 
     
 # @tool
 # def write_to_file(file_path: str, content: str) -> None:
 #     """Tool to create or write content to a file."""
 #     print('Writing to file: ', file_path)
-#     with open(os.path.join(MAIN, file_path), "w") as f:
+#     with open(os.path.join(main_dir, file_path), "w") as f:
 #         f.write(content)  
 
 @tool
@@ -38,8 +31,8 @@ def create_file(file_path: str) -> None:
         file_path = file_path[1:]
     dir_path = os.path.dirname(file_path)
     if dir_path:
-        os.makedirs(os.path.join(MAIN, dir_path), exist_ok=True)
-    with open(os.path.join(MAIN, file_path), "w") as f:
+        os.makedirs(os.path.join(Config.MAIN_DIR, dir_path), exist_ok=True)
+    with open(os.path.join(Config.MAIN_DIR, file_path), "w") as f:
         f.write('')
 
 @tool 
@@ -49,7 +42,7 @@ def list_dir(dir_path: str) -> list:
         dir_path = dir_path.split('app')[1]
     if dir_path.startswith('/'):
         dir_path = dir_path[1:]
-    return os.listdir(os.path.join(MAIN, dir_path))
+    return os.listdir(os.path.join(Config.MAIN_DIR, dir_path))
 
 @tool
 def make_change_to_file(file_path: str, changes: str) -> str:
@@ -66,7 +59,7 @@ def make_change_to_file(file_path: str, changes: str) -> str:
         file_path = file_path[1:]
 
     # Get the code from file
-    with open(os.path.join(MAIN, file_path), "r") as f:
+    with open(os.path.join(Config.MAIN_DIR, file_path), "r") as f:
         current_code = f.read() 
     
     programmer = ClaudeClient()
@@ -95,7 +88,7 @@ def make_change_to_file(file_path: str, changes: str) -> str:
     for c in unique_components:
         component = c.replace("@/", "")
 
-        component_path = os.path.join(COMPONENTS, f"{component}.tsx")
+        component_path = os.path.join(Config.COMPONENTS_DIR, f"{component}.tsx")
 
         if os.path.exists(component_path):
             print(f"{component} is already installed.")
@@ -109,7 +102,7 @@ def make_change_to_file(file_path: str, changes: str) -> str:
                 shell=True,
                 check=True,
                 text=True,
-                cwd=MAIN,
+                cwd=Config.BASE_DIR
             )
             print(f"{component} installed successfully.")
         except subprocess.CalledProcessError as error:
@@ -117,7 +110,7 @@ def make_change_to_file(file_path: str, changes: str) -> str:
 
 
     
-    programmer.rewrite_code(tsx_code, str(os.path.join(MAIN, file_path)))
+    programmer.rewrite_code(tsx_code, str(os.path.join(Config.MAIN_DIR, file_path)))
     
     return f"The changes to the code were successfully made to the file: {file_path}"
 

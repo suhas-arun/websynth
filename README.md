@@ -47,3 +47,4 @@ Timms A, Langbridge A, Antonopoulos A, Mygiakis A, Donncha F. Agentic AI for Dig
   
 
 ## Contributors 
+Alexander Timms, Ben James, Suhas Arun, Viyan Raj, Matthew Gummow, Sidhanth Sureshkumar

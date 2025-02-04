@@ -5,7 +5,7 @@ We wanted to bridge the gap between the fleeting, off-the-wall scribbles that of
 
 Our ultimate aim was to remove the limiter on human imagination, supercharging creativity in the realm of web development.
 
-## What it does
+### What it does
 
 WebSynth provides the user with a customisable, interactive interface to create and describe front-end elements, while leveraging Claude via a multi-agent workflow which translates ideas into code, synthesising the user's desired web development changes. The use of an agentic workflow, featuring a 'Project Manager', 'Programmer' and 'Tester', upholds code quality without annoying code slumps. The incorporation of InterSystem's IRIS data system and VectorSearch, also assists in grounded content generation, avoiding LLM hallucination. Further, our unique IDE increases flexibility by enabling dynamic web development through the use of web containers.
 
